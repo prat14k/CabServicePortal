@@ -27,15 +27,22 @@ class DashboardViewController: UIViewController {
         SVProgressHUD.show(withStatus: "Logging Out")
         do {
             try Auth.auth().signOut()
+            DropDownAlert.showMessage("Logged out Successfully", withTextColor: nil, backGroundColor: nil, position: .bottom)
+            self.navigationController?.popViewController(animated: true)
         }
         catch let error {
-            
+            SVProgressHUD.showError(withStatus: error.localizedDescription)
         }
-        
+        SVProgressHUD.dismiss()
     }
     
     @IBAction func driverRideAction(_ sender: UIButton) {
         
         
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        SVProgressHUD.dismiss()
     }
 }

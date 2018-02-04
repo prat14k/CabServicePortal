@@ -10,4 +10,5 @@ import Foundation
 
 let kLoginVCStoryboardID = "LoginVCScene"
 let kDashBoardVCStoryboardID = "DashBoardVCScene"
+let kNavigationControllerVCStoryboardID = "MainNavigationVCScene"
 let portalUserType = "Drivers"

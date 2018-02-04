@@ -36,11 +36,15 @@ class AuthViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         addKeyboardNotificationListeners()
+        
+        emailTextField.text = ""
+        passwordTextField.text = ""
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         removeKeyboardNotificationListeners()
+        SVProgressHUD.dismiss()
     }
     
     func addGradientLayer(){
@@ -78,12 +82,14 @@ class AuthViewController: UIViewController {
                 SVProgressHUD.showError(withStatus: msg)
             }
             else{
-                SVProgressHUD.showSuccess(withStatus: "Successfully logged in")
+                SVProgressHUD.dismiss()
+                DropDownAlert.showMessage("Welcome \(email)", withTextColor: nil, backGroundColor: nil, position: .top)
+                
                 let storyBoard = UIStoryboard(name: "Main", bundle: nil)
                 if let vc = storyBoard.instantiateViewController(withIdentifier: kDashBoardVCStoryboardID) as? DashboardViewController {
-                    DispatchQueue.main.async {
+//                    DispatchQueue.main.async {
                         self.navigationController?.pushViewController(vc, animated: true)
-                    }
+//                    }
                 }
             }
         }
@@ -98,19 +104,21 @@ class AuthViewController: UIViewController {
         let email = emailTextField.text!
         let password = passwordTextField.text!
         
+        SVProgressHUD.show(withStatus: "Signing up")
+        
         AuthProvider.Instance.registerAction(withEmail: email, andPassword: password) { (message) in
             if let msg = message {
                 //                self.showAlertWithTitle("Problem with Signup", message: msg)
                 SVProgressHUD.showError(withStatus: msg)
             }
             else{
-                SVProgressHUD.showSuccess(withStatus: "Successfully logged in")
-                let storyBoard = UIStoryboard(name: "Main", bundle: nil)
-                if let vc = storyBoard.instantiateViewController(withIdentifier: kDashBoardVCStoryboardID) as? DashboardViewController {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: {
-                        self.navigationController?.pushViewController(vc, animated: true)
-                    })
-                }
+                SVProgressHUD.showSuccess(withStatus: "Successfully Registered. Please Login to continue")
+//                let storyBoard = UIStoryboard(name: "Main", bundle: nil)
+//                if let vc = storyBoard.instantiateViewController(withIdentifier: kDashBoardVCStoryboardID) as? DashboardViewController {
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: {
+//                        self.navigationController?.pushViewController(vc, animated: true)
+//                    })
+//                }
             }
         }
         
