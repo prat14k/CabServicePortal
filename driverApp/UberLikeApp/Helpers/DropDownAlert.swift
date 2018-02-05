@@ -56,9 +56,21 @@ class DropDownAlert: NSObject {
         alertView.addConstraint(NSLayoutConstraint(item: DropDownAlert.alertLabel, attribute: .trailing, relatedBy: .equal, toItem: alertView, attribute: .trailing, multiplier: 1, constant: -labelRightPadding))
     }
     
+    
+    class private func calcLabelSize(text : String, font : UIFont , maxWidth : CGFloat) -> CGRect {
+        let size = CGSize(width: maxWidth, height: 200)
+        return NSString(string: text).boundingRect(with: size, options: [NSStringDrawingOptions.usesLineFragmentOrigin , .usesFontLeading], attributes: [NSAttributedStringKey.font : font], context: nil)
+    }
+    
+}
+
+
+extension DropDownAlert {
+    
+    
     class func showMessage(_ message : String, withTextColor textColor : UIColor?, backGroundColor : UIColor? ,  position : DisplayPosition?){
         
-//        var displayPos : DisplayPosition = .top, txtColor, bgColor  : UIColor
+        //        var displayPos : DisplayPosition = .top, txtColor, bgColor  : UIColor
         
         var displayPos : DisplayPosition = .top, txtColor = UIColor.white, bgColor = UIColor.gray
         
@@ -82,7 +94,7 @@ class DropDownAlert: NSObject {
         alertLabel.text = message
         
         if let window = UIApplication.shared.keyWindow {
-        
+            
             var rect = calcLabelSize(text: message, font: alertLabel.font , maxWidth : window.frame.size.width - 30)
             rect.size.height = rect.height + labelBottomPadding + labelTopPadding
             
@@ -108,11 +120,7 @@ class DropDownAlert: NSObject {
                 
             })
             
-            UIView.animate(withDuration: 1, delay: 3, options: [.curveEaseIn], animations: {
-                alertView.frame = initialFrame
-            }, completion: { (finished) in
-                
-            })
+            removeDropDownAlert(alertView, withInitialState: initialFrame)
             
         }
         
@@ -120,17 +128,15 @@ class DropDownAlert: NSObject {
     
     class func removeDropDownAlert(_ alert : UIView, withInitialState initialFrame : CGRect){
         
-        UIView.animate(withDuration: 1.2, delay: 0, options: [.curveEaseIn], animations: {
+        UIView.animate(withDuration: 1, delay: 3, options: [.curveEaseIn], animations: {
             alert.frame = initialFrame
         }, completion: { (finished) in
-            alert.removeFromSuperview()
+            if finished {
+                alert.removeFromSuperview()
+            }
         })
         
     }
     
-    class private func calcLabelSize(text : String, font : UIFont , maxWidth : CGFloat) -> CGRect {
-        let size = CGSize(width: maxWidth, height: 200)
-        return NSString(string: text).boundingRect(with: size, options: [NSStringDrawingOptions.usesLineFragmentOrigin , .usesFontLeading], attributes: [NSAttributedStringKey.font : font], context: nil)
-    }
-    
 }
+

@@ -19,6 +19,12 @@ class AuthProvider {
         return AuthProvider._instance
     }
     
+}
+
+
+//Public API's
+extension AuthProvider {
+    
     func loginUser(withEmail email : String , andPassword password : String, completionHandler : AuthCompletionHandler?) {
         
         Auth.auth().signIn(withEmail: email, password: password) { (user, error) in
@@ -67,10 +73,14 @@ class AuthProvider {
                 completionHandler?(msg)
             }
             else{
+                
+                if let uid = user?.uid {
+                    DBAccessProvider.Instance.saveUser(email: email, password: password, uid: uid)
+                }
+                
                 completionHandler?(nil)
                 print("Registered")
             }
         }
     }
-    
 }
