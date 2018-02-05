@@ -19,7 +19,7 @@
         <!--Login-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController storyboardIdentifier="DriverLoginVCScene" title="Login" id="BYZ-38-t0r" customClass="ViewController" customModule="UberLikeApp" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="LoginVCScene" title="Login" id="BYZ-38-t0r" customClass="AuthViewController" customModule="UberLikeApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -145,10 +145,47 @@
             </objects>
             <point key="canvasLocation" x="476" y="133.5832083958021"/>
         </scene>
+        <!--View Controller-->
+        <scene sceneID="d64-YF-BQF">
+            <objects>
+                <viewController id="lt2-Rp-fy2" customClass="ViewController" customModule="UberLikeApp" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="1tX-h0-xwk">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aWE-Sx-1rx">
+                                <rect key="frame" x="172.5" y="158" width="30" height="30"/>
+                                <state key="normal" title="top"/>
+                                <connections>
+                                    <action selector="alertActTop:" destination="lt2-Rp-fy2" eventType="touchUpInside" id="xHB-ki-qGt"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="f3g-b4-kFd">
+                                <rect key="frame" x="162" y="103" width="51" height="30"/>
+                                <state key="normal" title="Bottom"/>
+                                <connections>
+                                    <action selector="alertAct:" destination="lt2-Rp-fy2" eventType="touchUpInside" id="n3V-Bt-fcu"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="aWE-Sx-1rx" firstAttribute="top" secondItem="f3g-b4-kFd" secondAttribute="bottom" constant="25" id="9Sl-95-vtR"/>
+                            <constraint firstItem="f3g-b4-kFd" firstAttribute="centerX" secondItem="WMR-s6-vbk" secondAttribute="centerX" id="9lU-dQ-zRE"/>
+                            <constraint firstItem="f3g-b4-kFd" firstAttribute="top" secondItem="WMR-s6-vbk" secondAttribute="top" constant="83" id="Zqq-xQ-kRY"/>
+                            <constraint firstItem="aWE-Sx-1rx" firstAttribute="centerX" secondItem="f3g-b4-kFd" secondAttribute="centerX" id="yT6-tV-zk7"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="WMR-s6-vbk"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="eUl-WR-ERU" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="660" y="786.65667166416802"/>
+        </scene>
         <!--Dashboard-->
         <scene sceneID="ooB-wy-zsB">
             <objects>
-                <viewController storyboardIdentifier="DriverDashBoardVCScene" title="Dashboard" id="FbC-aM-I3E" customClass="DashboardViewController" customModule="UberLikeApp" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="DashBoardVCScene" title="Dashboard" id="FbC-aM-I3E" customClass="DashboardViewController" customModule="UberLikeApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="B5M-3K-LlQ">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -186,13 +223,13 @@
                                 </constraints>
                             </mapView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QVH-VC-AnZ">
-                                <rect key="frame" x="112" y="410" width="150" height="50"/>
+                                <rect key="frame" x="87" y="410" width="200" height="50"/>
                                 <color key="backgroundColor" red="0.059269692183031977" green="0.30953714010658911" blue="0.93779743020304573" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="HOj-5Y-8tj"/>
-                                    <constraint firstAttribute="width" constant="150" id="MWD-pe-HnG"/>
+                                    <constraint firstAttribute="width" constant="200" id="MWD-pe-HnG"/>
                                 </constraints>
-                                <state key="normal" title="Call an Uber">
+                                <state key="normal" title="Cancel the offered Ride">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </state>
                                 <connections>
@@ -222,10 +259,10 @@
             </objects>
             <point key="canvasLocation" x="1208.8" y="133.5832083958021"/>
         </scene>
-        <!--Navigation Controller-->
+        <!--MainNavigationVCScene-->
         <scene sceneID="BbO-Gt-lbl">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="RPD-7y-dIe" sceneMemberID="viewController">
+                <navigationController title="MainNavigationVCScene" automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="RPD-7y-dIe" sceneMemberID="viewController">
                     <toolbarItems/>
                     <nil key="simulatedTopBarMetrics"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="eq6-lD-8PP">

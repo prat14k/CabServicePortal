@@ -37,6 +37,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         FirebaseApp.configure()
         
+        if let user = Auth.auth().currentUser {
+            if user.uid != nil {
+                // User already logged in
+                
+                let storyBoard = UIStoryboard(name: "Main", bundle: nil)
+                if let vc = storyBoard.instantiateViewController(withIdentifier: kDashBoardVCStoryboardID) as? DashboardViewController {
+                    if let navigationControll = self.window?.rootViewController as? UINavigationController {
+                        navigationControll.pushViewController(vc, animated: true)
+                    }
+                }
+            }
+        }
         
         return true
     }
@@ -81,5 +93,10 @@ extension UIColor {
 //    }
 }
 
+
+extension Error {
+    var code: Int { return (self as NSError).code }
+    var domain: String { return (self as NSError).domain }
+}
 
 

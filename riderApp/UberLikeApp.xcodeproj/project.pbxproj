@@ -15,6 +15,10 @@
 		BB5E8FE02019A59300A5A992 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB5E8FDF2019A59300A5A992 /* Assets.xcassets */; };
 		BB5E8FE32019A59300A5A992 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BB5E8FE12019A59300A5A992 /* LaunchScreen.storyboard */; };
 		BBE715572023955B00CF04A4 /* DashboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE715562023955B00CF04A4 /* DashboardViewController.swift */; };
+		BBF7152D2028C4B00076F727 /* AuthProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF715292028C4B00076F727 /* AuthProvider.swift */; };
+		BBF7152E2028C4B00076F727 /* DBAccessProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF7152A2028C4B00076F727 /* DBAccessProvider.swift */; };
+		BBF7152F2028C4B00076F727 /* DropDownAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF7152C2028C4B00076F727 /* DropDownAlert.swift */; };
+		BBF715312028C4E20076F727 /* AuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF715302028C4E10076F727 /* AuthViewController.swift */; };
 		BBFE384F2021DBC80088F701 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBFE384E2021DBC80088F701 /* Constants.swift */; };
 /* End PBXBuildFile section */
 
@@ -30,6 +34,10 @@
 		BB5E8FE22019A59300A5A992 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		BB5E8FE42019A59300A5A992 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BBE715562023955B00CF04A4 /* DashboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewController.swift; sourceTree = "<group>"; };
+		BBF715292028C4B00076F727 /* AuthProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthProvider.swift; sourceTree = "<group>"; };
+		BBF7152A2028C4B00076F727 /* DBAccessProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DBAccessProvider.swift; sourceTree = "<group>"; };
+		BBF7152C2028C4B00076F727 /* DropDownAlert.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DropDownAlert.swift; sourceTree = "<group>"; };
+		BBF715302028C4E10076F727 /* AuthViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthViewController.swift; sourceTree = "<group>"; };
 		BBFE384E2021DBC80088F701 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		CA9322F149F524B2FDA0BDAA /* Pods_UberLikeApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UberLikeApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -84,7 +92,10 @@
 		BB5E8FD72019A59300A5A992 /* UberLikeApp */ = {
 			isa = PBXGroup;
 			children = (
+				BBF7152B2028C4B00076F727 /* Helpers */,
+				BBF715282028C4B00076F727 /* Plugins */,
 				BB5E8FD82019A59300A5A992 /* AppDelegate.swift */,
+				BBF715302028C4E10076F727 /* AuthViewController.swift */,
 				BB5E8FDA2019A59300A5A992 /* ViewController.swift */,
 				BB5E8FDC2019A59300A5A992 /* Main.storyboard */,
 				BB5E8FDF2019A59300A5A992 /* Assets.xcassets */,
@@ -95,6 +106,23 @@
 				BBE715562023955B00CF04A4 /* DashboardViewController.swift */,
 			);
 			path = UberLikeApp;
+			sourceTree = "<group>";
+		};
+		BBF715282028C4B00076F727 /* Plugins */ = {
+			isa = PBXGroup;
+			children = (
+				BBF715292028C4B00076F727 /* AuthProvider.swift */,
+				BBF7152A2028C4B00076F727 /* DBAccessProvider.swift */,
+			);
+			path = Plugins;
+			sourceTree = "<group>";
+		};
+		BBF7152B2028C4B00076F727 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				BBF7152C2028C4B00076F727 /* DropDownAlert.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -235,8 +263,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BBF7152F2028C4B00076F727 /* DropDownAlert.swift in Sources */,
 				BB5E8FDB2019A59300A5A992 /* ViewController.swift in Sources */,
 				BB5E8FD92019A59300A5A992 /* AppDelegate.swift in Sources */,
+				BBF7152E2028C4B00076F727 /* DBAccessProvider.swift in Sources */,
+				BBF715312028C4E20076F727 /* AuthViewController.swift in Sources */,
+				BBF7152D2028C4B00076F727 /* AuthProvider.swift in Sources */,
 				BBFE384F2021DBC80088F701 /* Constants.swift in Sources */,
 				BBE715572023955B00CF04A4 /* DashboardViewController.swift in Sources */,
 			);
