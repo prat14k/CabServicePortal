@@ -25,9 +25,20 @@ class AuthProvider {
 //Public API's
 extension AuthProvider {
     
+    func logoutUser(withCompletionHandler completionHandler: AuthCompletionHandler?){
+        do {
+            try Auth.auth().signOut()
+            completionHandler?(nil)
+        }
+        catch let error {
+            completionHandler?(error.localizedDescription)
+        }
+    }
+    
+    
     func loginUser(withEmail email : String , andPassword password : String, completionHandler : AuthCompletionHandler?) {
         
-        Auth.auth().signIn(withEmail: email, password: password) { (user, error) in
+        Auth.auth().signIn(withEmail: email/*"\(portalUserType.lowercased())_\(email)"*/, password: password) { (user, error) in
             
             if let error = error {
                 var msg : String = error.localizedDescription
@@ -46,7 +57,9 @@ extension AuthProvider {
                 completionHandler?(msg)
             }
             else {
-                
+                if let uid = user?.uid {
+                    UserDefaults.standard.set(uid, forKey: USER_UID)
+                }
                 completionHandler?(nil)
                 print("Logged in")
             }
@@ -56,7 +69,7 @@ extension AuthProvider {
     }
     
     func registerAction(withEmail email : String , andPassword password : String, completionHandler : AuthCompletionHandler?){
-        Auth.auth().createUser(withEmail: email, password: password) { (user, error) in
+        Auth.auth().createUser(withEmail: email/*"\(portalUserType.lowercased())_\(email)"*/, password: password) { (user, error) in
             if let error = error {
                 var msg : String = error.localizedDescription
                 

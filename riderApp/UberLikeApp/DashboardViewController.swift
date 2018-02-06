@@ -9,20 +9,26 @@
 import UIKit
 import CoreLocation
 import MapKit
-import Firebase
 import SVProgressHUD
 
 class DashboardViewController: UIViewController {
 
     @IBOutlet weak var navBarView: UIView!
     @IBOutlet weak var mapkit: MKMapView!
+    @IBOutlet weak var cabActionButton: UIButton!
     
     private var riderLocation : CLLocationCoordinate2D!
+    
+    private var driverLocation : CLLocationCoordinate2D!
+    private var isRideBooked : Bool!
+    private var driverID : String!
+    private var cabRequestID : String!
     
     private lazy var locationManager : CLLocationManager! = {
         var locationManager = CLLocationManager()
         locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+        locationManager.desiredAccuracy = kCLLocationAccuracyKilometer
+        locationManager.distanceFilter = 500
         locationManager.requestWhenInUseAuthorization()
         
         return locationManager
@@ -31,18 +37,35 @@ class DashboardViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        locationManager.startUpdatingLocation()
+        checkLocationAuthorizationStatus()
         
+        isRideBooked = false
         NotificationCenter.default.addObserver(self, selector: #selector(unavailabilityNotification(_:)), name: NSNotification.Name(UNAVAILABILITY_ISSUE), object: nil)
         
-        if let user = Auth.auth().currentUser {
-            DBAccessProvider.Instance.checkIfUserAvailable(uid: user.uid)
-        }
+        
+        DBAccessProvider.Instance.checkIfUserAvailable()
+    
+    }
+    
+    private func checkLocationAuthorizationStatus(){
+//        let code = CLLocationManager.authorizationStatus()
+//        if code == .notDetermined {
+//            if Bundle.main.object(forInfoDictionaryKey: "NSLocationAlwaysUsageDescription") != nil {
+//                locationManager.requestAlwaysAuthorization()
+//            }
+//            else if code == .restricted || code == .denied {
+//                print("Cannot be loaded")
+//            }
+//        }
+//        else{
+            locationManager.startUpdatingLocation()
+//        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         SVProgressHUD.dismiss()
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: UNAVAILABILITY_ISSUE), object: nil)
         locationManager.stopUpdatingLocation()
     }
     
@@ -52,35 +75,58 @@ class DashboardViewController: UIViewController {
     
     private func userUnAvailabityInfo(_ info : [String : Any]?){
         if let info = info {
-            
+            isRideBooked = true
+            cabRequestID = info[REQUEST_UID] as! String
         }
         else{
-            print("available")
+            isRideBooked = false
+            cabRequestID = nil
+            driverID = nil
+            driverLocation = nil
         }
     }
     
 }
 
 extension DashboardViewController {
+    
     @IBAction func logoutAction(_ sender: UIButton) {
         SVProgressHUD.show(withStatus: "Logging Out")
-        do {
-            try Auth.auth().signOut()
-            DropDownAlert.showMessage("Logged out Successfully", withTextColor: nil, backGroundColor: nil, position: .bottom)
-            
-            UserDefaults.standard.removeObject(forKey: USER_UID)
-            
-            self.navigationController?.popViewController(animated: true)
+        
+        AuthProvider.Instance.logoutUser { (msg) in
+            if let message = msg {
+                //Unsuccessful logout
+                SVProgressHUD.showError(withStatus: message)
+            }
+            else{
+                // Successful Logout
+                DropDownAlert.showMessage("Logged out Successfully", withTextColor: nil, backGroundColor: nil, position: .top)
+                UserDefaults.standard.removeObject(forKey: USER_UID)
+                self.navigationController?.popViewController(animated: true)
+                
+                SVProgressHUD.dismiss()
+            }
         }
-        catch let error {
-            SVProgressHUD.showError(withStatus: error.localizedDescription)
-        }
-        SVProgressHUD.dismiss()
+        
     }
     
     @IBAction func riderRideAction(_ sender: UIButton) {
         
-        
+        if isRideBooked {
+            
+        }
+        else{
+            if riderLocation != nil {
+                DBAccessProvider.Instance.callForACab(latitude: riderLocation.latitude, longitude: riderLocation.longitude, requestID: cabRequestID, completionHandler: { (message) in
+                    if let msg = message {
+                        AlertViewHelper.showAlertWithTitle("Problem to call a Cab", message: msg, presentingController: self)
+                    }
+                    else{
+                        DropDownAlert.showMessage("Your request for a cab is registered successfully. We will notify you as soon as someone accepts.", withTextColor: nil, backGroundColor: UIColor.rgb(red: 0, green: 200, blue: 70, alpha: 1.0), position: .bottom)
+                    }
+                })
+            }
+        }
     }
 }
 
@@ -108,6 +154,16 @@ extension DashboardViewController : MKMapViewDelegate , CLLocationManagerDelegat
         }
     }
     
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        riderLocation = nil
+        mapkit.removeAnnotations(mapkit.annotations)
+        if status == .denied || status == .restricted {
+            AlertViewHelper.showAlertWithTitle("Location Services not available", message: "Unable to access the location services. Please provide access in order to use the feature better.", presentingController: self)
+        }
+        else {
+            locationManager.startUpdatingLocation()
+        }
+    }
 }
 
 

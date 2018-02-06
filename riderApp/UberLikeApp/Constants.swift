@@ -17,11 +17,19 @@ let LONGITUDE = "longitude"
 
 let EMAIL = "email"
 let PASSWORD = "password"
-let REQUEST_ID = "requestID"
+
+let RIDE_REQUESTS = "rideRequests"
+let PENDING_REQUESTS = "Pending"
+let ACCEPTED_REQUESTS = "Accepted"
 
 let USER_UID = "USER_UID"
 
+let RIDER_UID = "riderID"
+let DRIVER_UID = "driverID"
+
 let UNAVAILABILITY_ISSUE = "UnAvailabilityNotification"
+
+let BOOKED_PEOPLE = "bookedEntities"
 
 let REQUEST_UID = "requestUID"
 

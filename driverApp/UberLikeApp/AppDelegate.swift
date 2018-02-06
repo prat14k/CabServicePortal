@@ -37,16 +37,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         FirebaseApp.configure()
         
-        if let user = Auth.auth().currentUser {
-            if user.uid != nil {
-                // User already logged in
-                
-                let storyBoard = UIStoryboard(name: "Main", bundle: nil)
-                if let vc = storyBoard.instantiateViewController(withIdentifier: kDashBoardVCStoryboardID) as? DashboardViewController {
-                    if let navigationControll = self.window?.rootViewController as? UINavigationController {
-                        navigationControll.pushViewController(vc, animated: true)
-                    }
+        if (UserDefaults.standard.value(forKey: USER_UID) as? String) != nil {
+            // User already logged in
+            let storyBoard = UIStoryboard(name: "Main", bundle: nil)
+            if let vc = storyBoard.instantiateViewController(withIdentifier: kDashBoardVCStoryboardID) as? DashboardViewController {
+                if let navigationControll = self.window?.rootViewController as? UINavigationController {
+                    navigationControll.pushViewController(vc, animated: true)
                 }
+            }
+        }
+        else{
+            if Auth.auth().currentUser != nil {
+                do {
+                   try Auth.auth().signOut()
+                }
+                catch _ {}
             }
         }
         

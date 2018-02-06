@@ -11,6 +11,8 @@ import Firebase
 
 class DBAccessProvider: NSObject {
 
+    typealias DBQueryHandler = (_ message : String?) -> Void
+    
     private static let _instance = DBAccessProvider()
     
     static let Instance : DBAccessProvider = {
@@ -32,9 +34,18 @@ extension DBAccessProvider {
         
     }
     
-    func checkIfUserAvailable(uid : String) {
+    
+    func checkIfUserAvailable() {
         
-        FirebaseDBURL.child("working\(portalUserType)").child(uid).observeSingleEvent(of: .value) { (snapShot) in
+        var uid : String
+        if let user = Auth.auth().currentUser {
+            uid = user.uid
+        }
+        else{
+            return
+        }
+        
+        FirebaseDBURL.child("\(BOOKED_PEOPLE)").child("\(portalUserType.lowercased())").child(uid).observeSingleEvent(of: .value) { (snapShot) in
             if snapShot.exists() {
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: UNAVAILABILITY_ISSUE), object: nil, userInfo: [REQUEST_UID  : snapShot.value as! String])
             }
@@ -42,4 +53,29 @@ extension DBAccessProvider {
         
     }
     
+    
+    func callForACab(latitude : Double , longitude : Double , requestID : String? , completionHandler : DBQueryHandler?) {
+        var requestID = requestID
+        if requestID == nil {
+            requestID = NSUUID().uuidString
+        }
+        
+        var uid = ""
+        if let user = Auth.auth().currentUser {
+            uid = user.uid
+        }
+        else{
+            completionHandler?("Problem with user authentication. Please logout and login again !!!")
+            return
+        }
+        
+        FirebaseDBURL.child(RIDE_REQUESTS).child(PENDING_REQUESTS).child(requestID!).updateChildValues([ RIDER_UID : uid , LATITUDE : latitude , LONGITUDE : longitude ]) { (error, dbref) in
+            if let error = error {
+                completionHandler?(error.localizedDescription)
+            }
+            else{
+                completionHandler?(nil)
+            }
+        }
+    }
 }

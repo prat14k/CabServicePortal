@@ -229,11 +229,11 @@
                                     <constraint firstAttribute="height" constant="50" id="HOj-5Y-8tj"/>
                                     <constraint firstAttribute="width" constant="200" id="MWD-pe-HnG"/>
                                 </constraints>
-                                <state key="normal" title="Cancel the offered Ride">
+                                <state key="normal" title="Call Uber">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </state>
                                 <connections>
-                                    <action selector="riderCallCabAction:" destination="FbC-aM-I3E" eventType="touchUpInside" id="8br-8I-Pjo"/>
+                                    <action selector="riderRideAction:" destination="FbC-aM-I3E" eventType="touchUpInside" id="7de-qB-QLQ"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -251,6 +251,7 @@
                         <viewLayoutGuide key="safeArea" id="hN9-8S-Th7"/>
                     </view>
                     <connections>
+                        <outlet property="cabActionButton" destination="QVH-VC-AnZ" id="VRa-2P-udG"/>
                         <outlet property="mapkit" destination="gsV-rn-p8S" id="nxp-6y-Z4B"/>
                         <outlet property="navBarView" destination="t2V-9J-MWc" id="twB-Ai-PXI"/>
                     </connections>

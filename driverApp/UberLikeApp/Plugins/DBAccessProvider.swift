@@ -9,8 +9,19 @@
 import UIKit
 import Firebase
 
+protocol RideRequestAcceptanceProtocol : NSObjectProtocol {
+    
+    func rideReqAccepted(requestID : String , rideLatitude : Double , rideLongitude : Double , riderUID : String)
+    
+}
+
 class DBAccessProvider: NSObject {
 
+    weak var delegate : RideRequestAcceptanceProtocol?
+    
+    typealias DBQueryHandler = (_ message : String?) -> Void
+    typealias RideAlertHandler = (_ infoDict : [String : Any]) -> Void
+    
     private static let _instance = DBAccessProvider()
     
     static let Instance : DBAccessProvider = {
@@ -32,12 +43,60 @@ extension DBAccessProvider {
         
     }
     
-    func checkIfUserAvailable(uid : String) {
+    func checkIfUserAvailable() {
         
-        FirebaseDBURL.child("working\(portalUserType)").child(uid).observeSingleEvent(of: .value) { (snapShot) in
+        var uid : String
+        if let user = Auth.auth().currentUser {
+            uid = user.uid
+        }
+        else{
+            return
+        }
+        
+        FirebaseDBURL.child("\(BOOKED_PEOPLE)").child("\(portalUserType.lowercased())").child(uid).observeSingleEvent(of: .value) { (snapShot) in
             if snapShot.exists() {
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: UNAVAILABILITY_ISSUE), object: nil, userInfo: [REQUEST_UID  : snapShot.value as! String])
             }
+        }
+        
+    }
+    
+    func checkIfAnyPendingCabRequests(newRequestHandler : @escaping RideAlertHandler){
+        
+        FirebaseDBURL.child(RIDE_REQUESTS).child(PENDING_REQUESTS).observe(.childAdded) { (pendingReq) in
+            
+            if pendingReq.exists() {
+                
+                let requestID = pendingReq.key
+                
+                if let requestInfo = pendingReq.value as? [String : Any] {
+                    
+                    let riderID = requestInfo[RIDER_UID] as! String
+                    let latitude = requestInfo[LATITUDE] as! Double
+                    let longitude = requestInfo[LONGITUDE] as! Double
+                    
+                    newRequestHandler([ REQUEST_UID : requestID , RIDER_UID : riderID , LATITUDE : latitude , LONGITUDE : longitude ])
+                    
+                }
+                
+            }
+            
+        }
+    }
+    
+    func acceptCabRideRequest(infoDict : [String : Any]) -> Void {
+        
+        if let requestID = infoDict[REQUEST_UID] as? String {
+            FirebaseDBURL.child(RIDE_REQUESTS).child(PENDING_REQUESTS).child(requestID).removeValue(completionBlock: { (error, dbRef) in
+                
+                if let error = error {
+                    
+                }
+                else{
+                    Fir
+                }
+                
+            })
         }
         
     }

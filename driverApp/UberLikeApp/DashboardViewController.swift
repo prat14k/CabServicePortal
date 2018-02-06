@@ -9,7 +9,6 @@
 import UIKit
 import CoreLocation
 import MapKit
-import Firebase
 import SVProgressHUD
 
 class DashboardViewController: UIViewController {
@@ -17,12 +16,20 @@ class DashboardViewController: UIViewController {
     @IBOutlet weak var navBarView: UIView!
     @IBOutlet weak var mapkit: MKMapView!
     
+    @IBOutlet weak var cabRideActionButton: UIButton!
+    
     private var driverLocation : CLLocationCoordinate2D!
+    
+    private var riderLocation : CLLocationCoordinate2D!
+    private var isDriverBooked : Bool!
+    private var riderID : String!
+    private var cabRequestID : String!
     
     private lazy var locationManager : CLLocationManager! = {
         var locationManager = CLLocationManager()
         locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+        locationManager.desiredAccuracy = kCLLocationAccuracyKilometer
+        locationManager.distanceFilter = 500
         locationManager.requestWhenInUseAuthorization()
         
         return locationManager
@@ -33,16 +40,16 @@ class DashboardViewController: UIViewController {
         
         locationManager.startUpdatingLocation()
         
+        isDriverBooked = false
         NotificationCenter.default.addObserver(self, selector: #selector(unavailabilityNotification(_:)), name: NSNotification.Name(UNAVAILABILITY_ISSUE), object: nil)
         
-        if let user = Auth.auth().currentUser {
-            DBAccessProvider.Instance.checkIfUserAvailable(uid: user.uid)
-        }
+        DBAccessProvider.Instance.checkIfUserAvailable()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         SVProgressHUD.dismiss()
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: UNAVAILABILITY_ISSUE), object: nil)
         locationManager.stopUpdatingLocation()
     }
     
@@ -52,10 +59,47 @@ class DashboardViewController: UIViewController {
     
     private func userUnAvailabityInfo(_ info : [String : Any]?){
         if let info = info {
-            
+            isDriverBooked = true
+            cabRequestID = info[REQUEST_UID] as! String
         }
         else{
-            print("available")
+            makeUserFree()
+        }
+    }
+    
+    private func observePendingCabRequests(){
+        
+    }
+    
+    func makeUserBooked(infoDict : [String : Any]){
+        print("BOOKED : ")
+        print(infoDict)
+        
+        
+    }
+    func makeUserFree(){
+        isDriverBooked = false
+        cabRequestID = nil
+        riderID = nil
+        riderLocation = nil
+        
+        addObserverForPendingReq()
+    }
+    
+    private func addObserverForPendingReq(){
+        if driverLocation != nil {
+            DBAccessProvider.Instance.checkIfAnyPendingCabRequests(newRequestHandler: { (infoDict) in
+                if !self.isDriverBooked {
+                    let positiveAction = UIAlertAction(title: "Accept", style: .default, handler: { (action) in
+                        DBAccessProvider.Instance.acceptCabRideRequest(infoDict: infoDict)
+                        self.makeUserBooked(infoDict: infoDict)
+                    })
+                    
+                    let latitude = infoDict[LATITUDE] as! Double
+                    let longitude = infoDict[LONGITUDE] as! Double
+                    AlertViewHelper.showAlertWithTitle("Accept Ride Request ?", message: "A cab request has been recieved from coordinates(\(LATITUDE):\(latitude) , \(LONGITUDE):\(longitude)). Do you accept it ?", positiveAlertAction: positiveAction, presentingController: self)
+                }
+            })
         }
     }
     
@@ -64,22 +108,32 @@ class DashboardViewController: UIViewController {
 extension DashboardViewController {
     @IBAction func logoutAction(_ sender: UIButton) {
         SVProgressHUD.show(withStatus: "Logging Out")
-        do {
-            try Auth.auth().signOut()
-            DropDownAlert.showMessage("Logged out Successfully", withTextColor: nil, backGroundColor: nil, position: .bottom)
-            
-            UserDefaults.standard.removeObject(forKey: USER_UID)
-            
-            self.navigationController?.popViewController(animated: true)
+        
+        AuthProvider.Instance.logoutUser { (msg) in
+            if let message = msg {
+                //Unsuccessful logout
+                SVProgressHUD.showError(withStatus: message)
+            }
+            else{
+                // Successful Logout
+                DropDownAlert.showMessage("Logged out Successfully", withTextColor: nil, backGroundColor: nil, position: .top)
+                UserDefaults.standard.removeObject(forKey: USER_UID)
+                self.navigationController?.popViewController(animated: true)
+                
+                SVProgressHUD.dismiss()
+            }
         }
-        catch let error {
-            SVProgressHUD.showError(withStatus: error.localizedDescription)
-        }
-        SVProgressHUD.dismiss()
+        
     }
     
-    @IBAction func driverRideAction(_ sender: UIButton) {
+    @IBAction func driverRideAction(_ sender: UIButton!) {
         
+        if isDriverBooked {
+            
+        }
+        else{
+            
+        }
         
     }
 }
@@ -105,6 +159,17 @@ extension DashboardViewController : MKMapViewDelegate , CLLocationManagerDelegat
                 annotation.title = "\(portalUserType) Locations"
                 mapkit.addAnnotation(annotation)
             }
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        driverLocation = nil
+        mapkit.removeAnnotations(mapkit.annotations)
+        if status == .denied || status == .restricted {
+            AlertViewHelper.showAlertWithTitle("Location Services not available", message: "Unable to access the location services. Please provide access in order to use the feature better.", presentingController: self)
+        }
+        else if status != .notDetermined {
+            locationManager.startUpdatingLocation()
         }
     }
     

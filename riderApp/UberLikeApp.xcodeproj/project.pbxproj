@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		05B2542AFB8706F53168C284 /* Pods_UberLikeApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA9322F149F524B2FDA0BDAA /* Pods_UberLikeApp.framework */; };
+		BB06403720298EC4009D081A /* AlertViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB06403620298EC4009D081A /* AlertViewHelper.swift */; };
 		BB1959F22025EC1600300FD7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB1959F12025EC1600300FD7 /* GoogleService-Info.plist */; };
 		BB5E8FD92019A59300A5A992 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5E8FD82019A59300A5A992 /* AppDelegate.swift */; };
 		BB5E8FDB2019A59300A5A992 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5E8FDA2019A59300A5A992 /* ViewController.swift */; };
@@ -25,6 +26,7 @@
 /* Begin PBXFileReference section */
 		38338940A8FB05D725F3C1B8 /* Pods-UberLikeApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UberLikeApp.debug.xcconfig"; path = "Pods/Target Support Files/Pods-UberLikeApp/Pods-UberLikeApp.debug.xcconfig"; sourceTree = "<group>"; };
 		644B88BF6CB33F115EF7EB97 /* Pods-UberLikeApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UberLikeApp.release.xcconfig"; path = "Pods/Target Support Files/Pods-UberLikeApp/Pods-UberLikeApp.release.xcconfig"; sourceTree = "<group>"; };
+		BB06403620298EC4009D081A /* AlertViewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertViewHelper.swift; sourceTree = "<group>"; };
 		BB1959F12025EC1600300FD7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		BB5E8FD52019A59300A5A992 /* UberLikeApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UberLikeApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB5E8FD82019A59300A5A992 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -121,6 +123,7 @@
 			isa = PBXGroup;
 			children = (
 				BBF7152C2028C4B00076F727 /* DropDownAlert.swift */,
+				BB06403620298EC4009D081A /* AlertViewHelper.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -263,6 +266,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BB06403720298EC4009D081A /* AlertViewHelper.swift in Sources */,
 				BBF7152F2028C4B00076F727 /* DropDownAlert.swift in Sources */,
 				BB5E8FDB2019A59300A5A992 /* ViewController.swift in Sources */,
 				BB5E8FD92019A59300A5A992 /* AppDelegate.swift in Sources */,

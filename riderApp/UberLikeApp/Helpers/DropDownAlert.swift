@@ -13,10 +13,10 @@ enum DisplayPosition {
     case bottom
 }
 
-let labelLeftPadding : CGFloat = 13
-let labelRightPadding : CGFloat = 13
-let labelTopPadding : CGFloat = 10
-let labelBottomPadding : CGFloat = 10
+let labelLeftPadding : CGFloat = 15
+let labelRightPadding : CGFloat = 15
+let labelTopPadding : CGFloat = 15
+let labelBottomPadding : CGFloat = 15
 
 class DropDownAlert: NSObject {
     
@@ -58,7 +58,7 @@ class DropDownAlert: NSObject {
     
     
     class private func calcLabelSize(text : String, font : UIFont , maxWidth : CGFloat) -> CGRect {
-        let size = CGSize(width: maxWidth, height: 200)
+        let size = CGSize(width: maxWidth, height: 500)
         return NSString(string: text).boundingRect(with: size, options: [NSStringDrawingOptions.usesLineFragmentOrigin , .usesFontLeading], attributes: [NSAttributedStringKey.font : font], context: nil)
     }
     
@@ -100,13 +100,19 @@ extension DropDownAlert {
             
             var initialFrame , finalFrame : CGRect
             
+            var bottomYSafeAreaInset : CGFloat = 0.0
+            if #available(iOS 11, *){
+                bottomYSafeAreaInset = window.safeAreaInsets.bottom
+            }
+            
+            
             switch displayPos {
             case .top:
                 initialFrame = CGRect(x: 0, y: -rect.size.height-5, width: window.frame.size.width, height: rect.size.height)
                 finalFrame = CGRect(x: 0, y: UIApplication.shared.statusBarFrame.size.height, width: window.frame.size.width, height: rect.size.height)
             case .bottom:
                 initialFrame = CGRect(x: 0, y: 5+window.frame.size.height, width: window.frame.size.width, height: rect.size.height)
-                finalFrame = CGRect(x: 0, y: window.frame.size.height - rect.size.height - 10, width: window.frame.size.width, height: rect.size.height)
+                finalFrame = CGRect(x: 0, y: window.frame.size.height - rect.size.height - bottomYSafeAreaInset, width: window.frame.size.width, height: rect.size.height)
             }
             
             

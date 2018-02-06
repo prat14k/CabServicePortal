@@ -11,7 +11,6 @@ import SVProgressHUD
 
 class AuthViewController: UIViewController {
 
-    
     @IBOutlet weak var navBarView: UIView!
     @IBOutlet weak var scrollView: UIScrollView!
     
@@ -66,6 +65,7 @@ class AuthViewController: UIViewController {
         self.view.endEditing(true)
     }
     
+    
     @IBAction func loginAction(_ sender : UIButton){
         if !checkCredentialsLiability() {
             return
@@ -78,18 +78,15 @@ class AuthViewController: UIViewController {
         
         AuthProvider.Instance.loginUser(withEmail: email, andPassword: password) { (message) in
             if let msg = message {
-                //                self.showAlertWithTitle("Problem with Login", message: msg)
                 SVProgressHUD.showError(withStatus: msg)
             }
             else{
                 SVProgressHUD.dismiss()
-                DropDownAlert.showMessage("Welcome \(email)", withTextColor: nil, backGroundColor: nil, position: .top)
+                DropDownAlert.showMessage("Welcome \(email)", withTextColor: nil, backGroundColor: nil, position: .bottom)
                 
                 let storyBoard = UIStoryboard(name: "Main", bundle: nil)
                 if let vc = storyBoard.instantiateViewController(withIdentifier: kDashBoardVCStoryboardID) as? DashboardViewController {
-//                    DispatchQueue.main.async {
-                        self.navigationController?.pushViewController(vc, animated: true)
-//                    }
+                    self.navigationController?.pushViewController(vc, animated: true)
                 }
             }
         }
@@ -108,17 +105,16 @@ class AuthViewController: UIViewController {
         
         AuthProvider.Instance.registerAction(withEmail: email, andPassword: password) { (message) in
             if let msg = message {
-                //                self.showAlertWithTitle("Problem with Signup", message: msg)
                 SVProgressHUD.showError(withStatus: msg)
             }
             else{
-                SVProgressHUD.showSuccess(withStatus: "Successfully Registered. Please Login to continue")
-//                let storyBoard = UIStoryboard(name: "Main", bundle: nil)
-//                if let vc = storyBoard.instantiateViewController(withIdentifier: kDashBoardVCStoryboardID) as? DashboardViewController {
-//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: {
-//                        self.navigationController?.pushViewController(vc, animated: true)
-//                    })
-//                }
+                SVProgressHUD.dismiss()
+                DropDownAlert.showMessage("Successfully Regstered. Welcome \(email)", withTextColor: nil, backGroundColor: nil, position: .bottom)
+                
+                let storyBoard = UIStoryboard(name: "Main", bundle: nil)
+                if let vc = storyBoard.instantiateViewController(withIdentifier: kDashBoardVCStoryboardID) as? DashboardViewController {
+                    self.navigationController?.pushViewController(vc, animated: true)
+                }
             }
         }
         
@@ -129,14 +125,14 @@ class AuthViewController: UIViewController {
         
         if let email = emailTextField.text {
             if !isEmailValid(email: email) {
-                showAlertWithTitle("The entered email is not valid", message: "The entered email doesn't follow the email id character rules")
+                AlertViewHelper.showAlertWithTitle("The entered email is not valid", message: "The entered email doesn't follow the email id character rules",presentingController: self)
                 return false
             }
         }
         
         if let password = passwordTextField.text {
             if password.count < 6 {
-                showAlertWithTitle("The entered password is too small", message: "The minimum length for the password is 6 letters")
+                AlertViewHelper.showAlertWithTitle("The entered password is too small", message: "The minimum length for the password is 6 letters",presentingController: self)
                 return false
             }
         }
@@ -177,11 +173,11 @@ extension AuthViewController : UITextFieldDelegate {
             return false
         }
         
-        let stricterFilter = true
+        _ = true
         let stricterFilterString = "^[A-Z0-9a-z\\._%+-]+@([A-Za-z0-9-]+\\.)+[A-Za-z]{2,4}$"
-        let laxString = "^.+@([A-Za-z0-9-]+\\.)+[A-Za-z]{2}[A-Za-z]*$"
-        let emailRegex = stricterFilter ? stricterFilterString : laxString
-        let emailTest = NSPredicate(format: "SELF MATCHES %@", emailRegex)
+        _ = "^.+@([A-Za-z0-9-]+\\.)+[A-Za-z]{2}[A-Za-z]*$"
+//        let emailRegex = stricterFilter ? stricterFilterString : laxString
+        let emailTest = NSPredicate(format: "SELF MATCHES %@", stricterFilterString)
         
         return emailTest.evaluate(with:email)
     }
@@ -231,7 +227,7 @@ extension AuthViewController : UITextFieldDelegate {
             if string != "" {
                 if let txt = textField.text {
                     if txt.count >= 150 {
-                        showAlertWithTitle("The entered password is too big", message: "The maximum length for the password is 150 letters only")
+                        AlertViewHelper.showAlertWithTitle("The entered password is too big", message: "The maximum length for the password is 150 letters only",presentingController: self)
                     }
                 }
             }
@@ -239,12 +235,4 @@ extension AuthViewController : UITextFieldDelegate {
         return true
     }
     
-    
-    func showAlertWithTitle(_ title : String , message : String){
-        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        let okayAction = UIAlertAction(title: "Okay", style: .default, handler: nil)
-        alertController.addAction(okayAction)
-        
-        present(alertController, animated: true, completion: nil)
-    }
 }
