@@ -15,13 +15,14 @@ class DashboardViewController: UIViewController {
 
     @IBOutlet weak var navBarView: UIView!
     @IBOutlet weak var mapkit: MKMapView!
-    @IBOutlet weak var cabActionButton: UIButton!
     
-    private var riderLocation : CLLocationCoordinate2D!
+    @IBOutlet weak var cabRideActionButton: UIButton!
     
     private var driverLocation : CLLocationCoordinate2D!
-    private var isRideBooked : Bool!
-    private var driverID : String!
+    
+    private var riderLocation : CLLocationCoordinate2D!
+    private var isDriverBooked : Bool!
+    private var riderID : String!
     private var cabRequestID : String!
     
     private lazy var locationManager : CLLocationManager! = {
@@ -36,30 +37,13 @@ class DashboardViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        cabRideActionButton.isHidden = true
+        locationManager.startUpdatingLocation()
         
-        checkLocationAuthorizationStatus()
-        
-        isRideBooked = false
+        isDriverBooked = false
         NotificationCenter.default.addObserver(self, selector: #selector(unavailabilityNotification(_:)), name: NSNotification.Name(UNAVAILABILITY_ISSUE), object: nil)
-        
-        
+        SVProgressHUD.show(withStatus: "Checking User status")
         DBAccessProvider.Instance.checkIfUserAvailable()
-    
-    }
-    
-    private func checkLocationAuthorizationStatus(){
-//        let code = CLLocationManager.authorizationStatus()
-//        if code == .notDetermined {
-//            if Bundle.main.object(forInfoDictionaryKey: "NSLocationAlwaysUsageDescription") != nil {
-//                locationManager.requestAlwaysAuthorization()
-//            }
-//            else if code == .restricted || code == .denied {
-//                print("Cannot be loaded")
-//            }
-//        }
-//        else{
-            locationManager.startUpdatingLocation()
-//        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -70,26 +54,64 @@ class DashboardViewController: UIViewController {
     }
     
     @objc func unavailabilityNotification(_ notification : Notification){
+        SVProgressHUD.dismiss()
         userUnAvailabityInfo(notification.userInfo as? [String : Any])
     }
     
     private func userUnAvailabityInfo(_ info : [String : Any]?){
         if let info = info {
-            isRideBooked = true
             cabRequestID = info[REQUEST_UID] as! String
+            makeUserBooked(infoDict: info)
         }
         else{
-            isRideBooked = false
-            cabRequestID = nil
-            driverID = nil
-            driverLocation = nil
+            makeUserFree()
+            addObserverForPendingReq()
+        }
+    }
+    
+    func makeUserBooked(infoDict : [String : Any]){
+        print("BOOKED : ")
+        print(infoDict)
+        
+        isDriverBooked = true
+        cabRideActionButton.isHidden = false
+    }
+    func makeUserFree(){
+        cabRideActionButton.isHidden = true
+        isDriverBooked = false
+        cabRequestID = nil
+        riderID = nil
+        riderLocation = nil
+    }
+    
+    private func addObserverForPendingReq(){
+        if driverLocation != nil {
+            DBAccessProvider.Instance.checkIfAnyPendingCabRequests(newRequestHandler: { (infoDict) in
+                let positiveAction = UIAlertAction(title: "Accept", style: .default, handler: { (action) in
+                    SVProgressHUD.show(withStatus: "Accepting the Cab Request")
+                    DBAccessProvider.Instance.acceptCabRideRequest(infoDict: infoDict, withCompletionHandler: { (success, message) in
+                        if success {
+                            self.makeUserBooked(infoDict: infoDict)
+                            DropDownAlert.showMessage("Request Accepted Successfully. You can see the \(portalUserType) location in the map.", withTextColor: nil, backGroundColor: successColor, position: .bottom)
+                        }
+                        else{
+                            if let msg = message {
+                                AlertViewHelper.showAlertWithTitle("Problem with Accepting request", message: msg, presentingController: self)
+                            }
+                        }
+                    })
+                })
+                
+                let latitude = infoDict[LATITUDE] as! Double
+                let longitude = infoDict[LONGITUDE] as! Double
+                AlertViewHelper.showAlertWithTitle("Accept Ride Request ?", message: "A cab request has been recieved from coordinates(\(LATITUDE):\(latitude) , \(LONGITUDE):\(longitude)). Do you accept it ?", positiveAlertAction: positiveAction, presentingController: self , shouldBePresentedNow: !self.isDriverBooked)
+            })
         }
     }
     
 }
 
 extension DashboardViewController {
-    
     @IBAction func logoutAction(_ sender: UIButton) {
         SVProgressHUD.show(withStatus: "Logging Out")
         
@@ -102,6 +124,7 @@ extension DashboardViewController {
                 // Successful Logout
                 DropDownAlert.showMessage("Logged out Successfully", withTextColor: nil, backGroundColor: nil, position: .top)
                 UserDefaults.standard.removeObject(forKey: USER_UID)
+                AlertViewHelper.Instance.clearAnyPendingAlerts()
                 self.navigationController?.popViewController(animated: true)
                 
                 SVProgressHUD.dismiss()
@@ -110,23 +133,16 @@ extension DashboardViewController {
         
     }
     
-    @IBAction func riderRideAction(_ sender: UIButton) {
+    @IBAction func driverRideAction(_ sender: UIButton!) {
         
-        if isRideBooked {
-            
+        if isDriverBooked {
+            makeUserFree()
+            AlertViewHelper.Instance.startPendingRequestsAlertsAgain(presentingController: self)
         }
         else{
-            if riderLocation != nil {
-                DBAccessProvider.Instance.callForACab(latitude: riderLocation.latitude, longitude: riderLocation.longitude, requestID: cabRequestID, completionHandler: { (message) in
-                    if let msg = message {
-                        AlertViewHelper.showAlertWithTitle("Problem to call a Cab", message: msg, presentingController: self)
-                    }
-                    else{
-                        DropDownAlert.showMessage("Your request for a cab is registered successfully. We will notify you as soon as someone accepts.", withTextColor: nil, backGroundColor: UIColor.rgb(red: 0, green: 200, blue: 70, alpha: 1.0), position: .bottom)
-                    }
-                })
-            }
+            
         }
+        
     }
 }
 
@@ -138,16 +154,16 @@ extension DashboardViewController : MKMapViewDelegate , CLLocationManagerDelegat
             
             if let curLoc = locations.first {
                 
-                riderLocation = CLLocationCoordinate2D(latitude: curLoc.coordinate.latitude, longitude: curLoc.coordinate.longitude)
+                driverLocation = CLLocationCoordinate2D(latitude: curLoc.coordinate.latitude, longitude: curLoc.coordinate.longitude)
                 
-                let region = MKCoordinateRegion(center: riderLocation, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
+                let region = MKCoordinateRegion(center: driverLocation, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
                 
                 mapkit.setRegion(region, animated: true)
                 
                 mapkit.removeAnnotations(mapkit.annotations)
                 
                 let annotation = MKPointAnnotation()
-                annotation.coordinate = riderLocation
+                annotation.coordinate = driverLocation
                 annotation.title = "\(portalUserType) Locations"
                 mapkit.addAnnotation(annotation)
             }
@@ -155,15 +171,16 @@ extension DashboardViewController : MKMapViewDelegate , CLLocationManagerDelegat
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        riderLocation = nil
+        driverLocation = nil
         mapkit.removeAnnotations(mapkit.annotations)
         if status == .denied || status == .restricted {
             AlertViewHelper.showAlertWithTitle("Location Services not available", message: "Unable to access the location services. Please provide access in order to use the feature better.", presentingController: self)
         }
-        else {
+        else if status != .notDetermined {
             locationManager.startUpdatingLocation()
         }
     }
+    
 }
 
 

@@ -1,2 +1,7 @@
 riderApp/UberLikeApp/GoogleService-Info.plist
 driverApp/UberLikeApp/GoogleService-Info.plist
+.DS_Store
+driverApp/.DS_Store
+driverApp/UberLikeApp/.DS_Store
+riderApp/.DS_Store
+riderApp/UberLikeApp/.DS_Store

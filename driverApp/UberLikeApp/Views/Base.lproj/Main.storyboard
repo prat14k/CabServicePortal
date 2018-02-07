@@ -44,7 +44,7 @@
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" canCancelContentTouches="NO" keyboardDismissMode="interactive" translatesAutoresizingMaskIntoConstraints="NO" id="bML-kE-VM4">
                                 <rect key="frame" x="0.0" y="65" width="375" height="602"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Riders Login" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZPu-bt-4NA">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Drivers Login" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZPu-bt-4NA">
                                         <rect key="frame" x="20" y="40" width="335" height="26"/>
                                         <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="21"/>
                                         <color key="textColor" red="0.12941176470588234" green="0.12941176470588234" blue="0.12941176470588234" alpha="1" colorSpace="calibratedRGB"/>
@@ -229,11 +229,11 @@
                                     <constraint firstAttribute="height" constant="50" id="HOj-5Y-8tj"/>
                                     <constraint firstAttribute="width" constant="200" id="MWD-pe-HnG"/>
                                 </constraints>
-                                <state key="normal" title="Call Uber">
+                                <state key="normal" title="Cancel the offered Ride">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </state>
                                 <connections>
-                                    <action selector="riderRideAction:" destination="FbC-aM-I3E" eventType="touchUpInside" id="7de-qB-QLQ"/>
+                                    <action selector="riderCallCabAction:" destination="FbC-aM-I3E" eventType="touchUpInside" id="8br-8I-Pjo"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -251,7 +251,7 @@
                         <viewLayoutGuide key="safeArea" id="hN9-8S-Th7"/>
                     </view>
                     <connections>
-                        <outlet property="cabActionButton" destination="QVH-VC-AnZ" id="VRa-2P-udG"/>
+                        <outlet property="cabRideActionButton" destination="QVH-VC-AnZ" id="m7t-ge-jCn"/>
                         <outlet property="mapkit" destination="gsV-rn-p8S" id="nxp-6y-Z4B"/>
                         <outlet property="navBarView" destination="t2V-9J-MWc" id="twB-Ai-PXI"/>
                     </connections>

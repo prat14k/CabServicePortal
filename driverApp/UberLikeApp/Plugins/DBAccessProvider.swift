@@ -15,12 +15,13 @@ protocol RideRequestAcceptanceProtocol : NSObjectProtocol {
     
 }
 
+
+typealias DBQueryHandler = (_ success : Bool , _ message : String?) -> Void
+typealias RideAlertHandler = (_ infoDict : [String : Any]) -> Void
+
 class DBAccessProvider: NSObject {
 
     weak var delegate : RideRequestAcceptanceProtocol?
-    
-    typealias DBQueryHandler = (_ message : String?) -> Void
-    typealias RideAlertHandler = (_ infoDict : [String : Any]) -> Void
     
     private static let _instance = DBAccessProvider()
     
@@ -57,6 +58,9 @@ extension DBAccessProvider {
             if snapShot.exists() {
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: UNAVAILABILITY_ISSUE), object: nil, userInfo: [REQUEST_UID  : snapShot.value as! String])
             }
+            else{
+                NotificationCenter.default.post(name: NSNotification.Name(rawValue: UNAVAILABILITY_ISSUE), object: nil, userInfo: nil)
+            }
         }
         
     }
@@ -84,19 +88,44 @@ extension DBAccessProvider {
         }
     }
     
-    func acceptCabRideRequest(infoDict : [String : Any]) -> Void {
+    func acceptCabRideRequest(infoDict : [String : Any] ,withCompletionHandler completionHandler : DBQueryHandler? = nil) -> Void {
         
         if let requestID = infoDict[REQUEST_UID] as? String {
-            FirebaseDBURL.child(RIDE_REQUESTS).child(PENDING_REQUESTS).child(requestID).removeValue(completionBlock: { (error, dbRef) in
-                
+            
+            var uid : String
+            if let user = Auth.auth().currentUser {
+                uid = user.uid
+            }
+            else{
+                return
+            }
+            
+            let acceptedReqData = [ DRIVER_UID : uid , RIDER_UID : infoDict[RIDER_UID]! , LATITUDE : infoDict[LATITUDE]! , LONGITUDE : infoDict[LONGITUDE]! ] as [String : Any]
+            
+            FirebaseDBURL.child(RIDE_REQUESTS).child(ACCEPTED_REQUESTS).child(requestID).updateChildValues(acceptedReqData, withCompletionBlock: { (error, dbRef) in
                 if let error = error {
-                    
+                    completionHandler?(false,error.localizedDescription)
                 }
                 else{
-                    Fir
+                    self.FirebaseDBURL.child(BOOKED_PEOPLE).child(portalUserType.lowercased()).updateChildValues([uid : requestID], withCompletionBlock: { (error, dbRef) in
+                        if let error = error {
+                            completionHandler?(false,error.localizedDescription)
+                            print("Error saving user status : \(error.localizedDescription)")
+                        }
+                        else{
+                            completionHandler?(true , nil)
+                        }
+                    })
+                    
+                    self.FirebaseDBURL.child(RIDE_REQUESTS).child(PENDING_REQUESTS).child(requestID).removeValue(completionBlock: { (error, dbRef) in
+                        if let error = error {
+//                            completionHandler?(false,error.localizedDescription)
+                            print("Error deleting Pending Req : \(error.localizedDescription)")
+                        }
+                    })
                 }
-                
             })
+        
         }
         
     }

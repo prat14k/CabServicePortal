@@ -11,7 +11,7 @@ import Firebase
 
 class DBAccessProvider: NSObject {
 
-    typealias DBQueryHandler = (_ message : String?) -> Void
+    typealias DBQueryHandler = (_ success : Bool ,_ message : String?) -> Void
     
     private static let _instance = DBAccessProvider()
     
@@ -45,7 +45,7 @@ extension DBAccessProvider {
             return
         }
         
-        FirebaseDBURL.child("\(BOOKED_PEOPLE)").child("\(portalUserType.lowercased())").child(uid).observeSingleEvent(of: .value) { (snapShot) in
+        FirebaseDBURL.child(BOOKED_PEOPLE).child(portalUserType.lowercased()).child(uid).observeSingleEvent(of: .value) { (snapShot) in
             if snapShot.exists() {
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: UNAVAILABILITY_ISSUE), object: nil, userInfo: [REQUEST_UID  : snapShot.value as! String])
             }
@@ -65,17 +65,41 @@ extension DBAccessProvider {
             uid = user.uid
         }
         else{
-            completionHandler?("Problem with user authentication. Please logout and login again !!!")
+            completionHandler?(false,"Problem with user authentication. Please logout and login again !!!")
             return
         }
         
         FirebaseDBURL.child(RIDE_REQUESTS).child(PENDING_REQUESTS).child(requestID!).updateChildValues([ RIDER_UID : uid , LATITUDE : latitude , LONGITUDE : longitude ]) { (error, dbref) in
             if let error = error {
-                completionHandler?(error.localizedDescription)
+                completionHandler?(false,error.localizedDescription)
             }
             else{
-                completionHandler?(nil)
+                self.FirebaseDBURL.child(BOOKED_PEOPLE).child(portalUserType.lowercased()).updateChildValues([ uid : requestID! ], withCompletionBlock: { (error, dbRef) in
+                    if let error = error {
+                        completionHandler?(false,error.localizedDescription)
+                    }
+                    else{
+                        completionHandler?(true,requestID!)
+                    }
+                })
             }
         }
+    }
+    
+    
+    func observeCabRequestStatus(requestID : String , completionHandler : DBQueryHandler?) {
+        
+        var handle : UInt = 0
+        let ref = FirebaseDBURL.child(RIDE_REQUESTS).child(PENDING_REQUESTS)
+        
+        handle = ref.observe(.childRemoved) { (snapShot) in
+            if snapShot.exists() {
+                if snapShot.key == requestID {
+                    completionHandler?(true , nil)
+                    ref.removeObserver(withHandle: handle)
+                }
+            }
+        }
+        
     }
 }

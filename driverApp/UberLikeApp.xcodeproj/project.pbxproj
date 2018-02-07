@@ -11,6 +11,7 @@
 		BB0640392029C33A009D081A /* AlertViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0640382029C339009D081A /* AlertViewHelper.swift */; };
 		BB162181202848680056AA50 /* DBAccessProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB162180202848680056AA50 /* DBAccessProvider.swift */; };
 		BB1959F52025F59D00300FD7 /* AuthProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1959F42025F59D00300FD7 /* AuthProvider.swift */; };
+		BB55A3F3202AEAFD0061DFB4 /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB55A3F2202AEAFD0061DFB4 /* UserModel.swift */; };
 		BB5E8FD92019A59300A5A992 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5E8FD82019A59300A5A992 /* AppDelegate.swift */; };
 		BB5E8FDB2019A59300A5A992 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5E8FDA2019A59300A5A992 /* ViewController.swift */; };
 		BB5E8FDE2019A59300A5A992 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BB5E8FDC2019A59300A5A992 /* Main.storyboard */; };
@@ -30,6 +31,7 @@
 		BB0640382029C339009D081A /* AlertViewHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertViewHelper.swift; sourceTree = "<group>"; };
 		BB162180202848680056AA50 /* DBAccessProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBAccessProvider.swift; sourceTree = "<group>"; };
 		BB1959F42025F59D00300FD7 /* AuthProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthProvider.swift; sourceTree = "<group>"; };
+		BB55A3F2202AEAFD0061DFB4 /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
 		BB5E8FD52019A59300A5A992 /* UberLikeApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UberLikeApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB5E8FD82019A59300A5A992 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BB5E8FDA2019A59300A5A992 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -82,6 +84,41 @@
 			path = Plugins;
 			sourceTree = "<group>";
 		};
+		BB55A3F1202AEAC70061DFB4 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				BB55A3F2202AEAFD0061DFB4 /* UserModel.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		BB55A3F7202B0ACD0061DFB4 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				BBC2F24420248B52001951DB /* GoogleService-Info.plist */,
+			);
+			path = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		BB55A3F8202B0AD70061DFB4 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				BB5E8FDC2019A59300A5A992 /* Main.storyboard */,
+				BB5E8FE12019A59300A5A992 /* LaunchScreen.storyboard */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		BB55A3F9202B0AE00061DFB4 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				BB5E8FDA2019A59300A5A992 /* ViewController.swift */,
+				BBB6792A2027344C007D0CB9 /* AuthViewController.swift */,
+				BBE715562023955B00CF04A4 /* DashboardViewController.swift */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
 		BB5E8FCC2019A59200A5A992 = {
 			isa = PBXGroup;
 			children = (
@@ -103,18 +140,15 @@
 		BB5E8FD72019A59300A5A992 /* UberLikeApp */ = {
 			isa = PBXGroup;
 			children = (
+				BB55A3F9202B0AE00061DFB4 /* Controllers */,
+				BB55A3F8202B0AD70061DFB4 /* Views */,
+				BB55A3F7202B0ACD0061DFB4 /* Supporting Files */,
+				BB55A3F1202AEAC70061DFB4 /* Model */,
 				BBB67927202722F1007D0CB9 /* Helpers */,
 				BB1959F32025F58000300FD7 /* Plugins */,
-				BB5E8FD82019A59300A5A992 /* AppDelegate.swift */,
-				BB5E8FDA2019A59300A5A992 /* ViewController.swift */,
-				BBB6792A2027344C007D0CB9 /* AuthViewController.swift */,
-				BB5E8FDC2019A59300A5A992 /* Main.storyboard */,
 				BB5E8FDF2019A59300A5A992 /* Assets.xcassets */,
-				BB5E8FE12019A59300A5A992 /* LaunchScreen.storyboard */,
-				BBC2F24420248B52001951DB /* GoogleService-Info.plist */,
+				BB5E8FD82019A59300A5A992 /* AppDelegate.swift */,
 				BB5E8FE42019A59300A5A992 /* Info.plist */,
-				BBFE384E2021DBC80088F701 /* Constants.swift */,
-				BBE715562023955B00CF04A4 /* DashboardViewController.swift */,
 			);
 			path = UberLikeApp;
 			sourceTree = "<group>";
@@ -122,6 +156,7 @@
 		BBB67927202722F1007D0CB9 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				BBFE384E2021DBC80088F701 /* Constants.swift */,
 				BB0640382029C339009D081A /* AlertViewHelper.swift */,
 				BBB679282027230C007D0CB9 /* DropDownAlert.swift */,
 			);
@@ -274,6 +309,7 @@
 				BB162181202848680056AA50 /* DBAccessProvider.swift in Sources */,
 				BBB679292027230C007D0CB9 /* DropDownAlert.swift in Sources */,
 				BBFE384F2021DBC80088F701 /* Constants.swift in Sources */,
+				BB55A3F3202AEAFD0061DFB4 /* UserModel.swift in Sources */,
 				BBE715572023955B00CF04A4 /* DashboardViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

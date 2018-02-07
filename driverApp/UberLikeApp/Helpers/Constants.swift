@@ -6,7 +6,7 @@
 //  Copyright © 2018 Prateek Sharma. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 let portalUserType = "Drivers"
 
@@ -34,4 +34,7 @@ let UNAVAILABILITY_ISSUE = "UnAvailabilityNotification"
 let BOOKED_PEOPLE = "bookedEntities"
 
 let REQUEST_UID = "requestUID"
+
+let successColor = UIColor.rgb(red: 0, green: 200, blue: 70, alpha: 1.0)
+let errorColor = UIColor.rgb(red: 0, green: 200, blue: 70, alpha: 1.0)
 

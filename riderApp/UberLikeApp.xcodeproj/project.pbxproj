@@ -73,6 +73,33 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		BB55A3F4202B0A250061DFB4 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				BBF715302028C4E10076F727 /* AuthViewController.swift */,
+				BB5E8FDA2019A59300A5A992 /* ViewController.swift */,
+				BBE715562023955B00CF04A4 /* DashboardViewController.swift */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
+		BB55A3F5202B0A4A0061DFB4 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				BB5E8FDC2019A59300A5A992 /* Main.storyboard */,
+				BB5E8FE12019A59300A5A992 /* LaunchScreen.storyboard */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		BB55A3F6202B0A6C0061DFB4 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				BB1959F12025EC1600300FD7 /* GoogleService-Info.plist */,
+			);
+			path = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		BB5E8FCC2019A59200A5A992 = {
 			isa = PBXGroup;
 			children = (
@@ -94,18 +121,14 @@
 		BB5E8FD72019A59300A5A992 /* UberLikeApp */ = {
 			isa = PBXGroup;
 			children = (
+				BB55A3F6202B0A6C0061DFB4 /* Supporting Files */,
+				BB55A3F5202B0A4A0061DFB4 /* Views */,
+				BB55A3F4202B0A250061DFB4 /* Controllers */,
 				BBF7152B2028C4B00076F727 /* Helpers */,
 				BBF715282028C4B00076F727 /* Plugins */,
-				BB5E8FD82019A59300A5A992 /* AppDelegate.swift */,
-				BBF715302028C4E10076F727 /* AuthViewController.swift */,
-				BB5E8FDA2019A59300A5A992 /* ViewController.swift */,
-				BB5E8FDC2019A59300A5A992 /* Main.storyboard */,
 				BB5E8FDF2019A59300A5A992 /* Assets.xcassets */,
-				BB5E8FE12019A59300A5A992 /* LaunchScreen.storyboard */,
-				BB1959F12025EC1600300FD7 /* GoogleService-Info.plist */,
+				BB5E8FD82019A59300A5A992 /* AppDelegate.swift */,
 				BB5E8FE42019A59300A5A992 /* Info.plist */,
-				BBFE384E2021DBC80088F701 /* Constants.swift */,
-				BBE715562023955B00CF04A4 /* DashboardViewController.swift */,
 			);
 			path = UberLikeApp;
 			sourceTree = "<group>";
@@ -122,6 +145,7 @@
 		BBF7152B2028C4B00076F727 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				BBFE384E2021DBC80088F701 /* Constants.swift */,
 				BBF7152C2028C4B00076F727 /* DropDownAlert.swift */,
 				BB06403620298EC4009D081A /* AlertViewHelper.swift */,
 			);
