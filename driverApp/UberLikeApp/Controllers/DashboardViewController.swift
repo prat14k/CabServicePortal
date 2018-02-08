@@ -31,7 +31,7 @@ class DashboardViewController: UIViewController {
         var locationManager = CLLocationManager()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyKilometer
-        locationManager.distanceFilter = 500
+        locationManager.distanceFilter = 30
         locationManager.requestWhenInUseAuthorization()
         
         return locationManager
@@ -105,6 +105,7 @@ class DashboardViewController: UIViewController {
                     if let msg = message {
                         AlertViewHelper.showAlertWithTitle("Cab Ride has been Cancelled", message: msg, presentingController: self, startPendingRequestsAtCompletion: true)
                         self.makeUserFree()
+                        DBAccessProvider.Instance.removeOtherInnecessaryAcceptanceData(requestID: requestID)
                     }
                 }
             }

@@ -9,10 +9,11 @@
 import UIKit
 import Firebase
 
+typealias DBQueryHandler = (_ success : Bool ,_ message : String?) -> Void
+typealias DBQueryInfoHandler = (_ success : Bool , _ infoDict : [String : Any]? , _ message : String?) -> Void
+
 class DBAccessProvider: NSObject {
 
-    typealias DBQueryHandler = (_ success : Bool ,_ message : String?) -> Void
-    
     private static let _instance = DBAccessProvider()
     
     static let Instance : DBAccessProvider = {
@@ -85,31 +86,6 @@ extension DBAccessProvider {
             }
         }
         
-        
-//        FirebaseDBURL.child(RIDE_REQUESTS).child(PENDING_REQUESTS).child(requestID!).updateChildValues([ RIDER_UID : uid ]) { (error, dbref) in
-//            if let error = error {
-//                completionHandler?(false,error.localizedDescription)
-//            }
-//            else{
-//
-//                dbref.child(RIDER_LOCATION).updateChildValues([ LATITUDE : latitude , LONGITUDE : longitude ], withCompletionBlock: { (error, dbRef) in
-//
-//                    self.FirebaseDBURL.child(BOOKED_PEOPLE).child(portalUserType.lowercased()).updateChildValues([ uid : requestID! ], withCompletionBlock: { (error, dbRef) in
-//                        if let error = error {
-//                            completionHandler?(false,error.localizedDescription)
-//                        }
-//                        else{
-//                            completionHandler?(true,requestID!)
-//                        }
-//                    })
-//
-//                })
-//
-//            }
-//        }
-
-    
-    
     }
     
     
@@ -160,10 +136,10 @@ extension DBAccessProvider {
         }
     }
     
-    func observeCabRequestStatus(requestID : String , completionHandler : DBQueryHandler?) {
+    func observeCabRequestStatus(requestID : String , requestTypeName : String , completionHandler : DBQueryHandler?) {
         
         var handle : UInt = 0
-        let ref = FirebaseDBURL.child(RIDE_REQUESTS).child(PENDING_REQUESTS)
+        let ref = FirebaseDBURL.child(RIDE_REQUESTS).child(requestTypeName)
         
         handle = ref.observe(.childRemoved) { (snapShot) in
             if snapShot.exists() {
@@ -173,6 +149,34 @@ extension DBAccessProvider {
                 }
             }
         }
+    }
+    
+    func getAcceptedQueryData(requestID : String , completionHandler : @escaping DBQueryInfoHandler) {
+        FirebaseDBURL.child(RIDE_REQUESTS).child(ACCEPTED_REQUESTS).child(requestID).observeSingleEvent(of: .value) { (snapShot) in
+            if snapShot.exists() {
+                if let rideInfo = snapShot.value as? [String : Any] {
+                    completionHandler(true,rideInfo,nil)
+                }
+            }
+        }
+    }
+    
+    
+    func addDriverLocationObserver(requestID : String , updateHandler : @escaping DBQueryInfoHandler){
+        
+        var ref = FirebaseDBURL.child(RIDE_REQUESTS).child(ACCEPTED_REQUESTS).child(requestID).child(DRIVER_LOCATION)
+        
+        ref.observe(.childChanged) { (snapShot) in
+            if snapShot.exists() {
+                if let info = snapShot.value as? [String : Double] {
+                    updateHandler(true, info, nil)
+                }
+            }
+        }
+        
+        ref.observe(.childRemoved, with: { (snapShot) in
+            ref.removeAllObservers()
+        })
         
     }
 }

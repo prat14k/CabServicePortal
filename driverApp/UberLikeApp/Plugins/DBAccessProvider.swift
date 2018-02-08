@@ -75,10 +75,10 @@ extension DBAccessProvider {
                 
                 if let requestInfo = pendingReq.value as? [String : Any] {
                     
-                    let riderID = requestInfo[RIDER_UID] as! String
-                    
-                    if let coordinates = requestInfo[RIDER_LOCATION] as? [String : Double] {
-                        newRequestHandler([ REQUEST_UID : requestID , RIDER_UID : riderID , RIDER_LOCATION : coordinates ])
+                    if let riderID = requestInfo[RIDER_UID] as? String {
+                        if let coordinates = requestInfo[RIDER_LOCATION] as? [String : Double] {
+                            newRequestHandler([ REQUEST_UID : requestID , RIDER_UID : riderID , RIDER_LOCATION : coordinates ])
+                        }
                     }
                 }
                 
@@ -179,6 +179,12 @@ extension DBAccessProvider {
         
         FirebaseDBURL.child(RIDE_REQUESTS).child(ACCEPTED_REQUESTS).child(requestID).child(DRIVER_LOCATION).updateChildValues([LATITUDE : latitude , LONGITUDE : longitude])
         
+    }
+    
+    
+    func removeOtherInnecessaryAcceptanceData(requestID : String){
+        FirebaseDBURL.child(RIDE_REQUESTS).child(ACCEPTED_REQUESTS).child(requestID).removeValue()
+        FirebaseDBURL.child(BOOKED_PEOPLE).child(portalUserType.lowercased()).child(AuthProvider.Instance.getUID()).removeValue()
     }
     
 }
