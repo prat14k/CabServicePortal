@@ -69,7 +69,7 @@ extension DBAccessProvider {
             return
         }
         
-        FirebaseDBURL.child(RIDE_REQUESTS).child(PENDING_REQUESTS).child(requestID!).updateChildValues([ RIDER_UID : uid , LATITUDE : latitude , LONGITUDE : longitude ]) { (error, dbref) in
+        FirebaseDBURL.child(RIDE_REQUESTS).child(PENDING_REQUESTS).child(requestID!).updateChildValues([ RIDER_UID : uid , RIDER_LOCATION : [ LATITUDE : latitude , LONGITUDE : longitude ] ]) { (error, dbref) in
             if let error = error {
                 completionHandler?(false,error.localizedDescription)
             }
@@ -84,8 +84,81 @@ extension DBAccessProvider {
                 })
             }
         }
+        
+        
+//        FirebaseDBURL.child(RIDE_REQUESTS).child(PENDING_REQUESTS).child(requestID!).updateChildValues([ RIDER_UID : uid ]) { (error, dbref) in
+//            if let error = error {
+//                completionHandler?(false,error.localizedDescription)
+//            }
+//            else{
+//
+//                dbref.child(RIDER_LOCATION).updateChildValues([ LATITUDE : latitude , LONGITUDE : longitude ], withCompletionBlock: { (error, dbRef) in
+//
+//                    self.FirebaseDBURL.child(BOOKED_PEOPLE).child(portalUserType.lowercased()).updateChildValues([ uid : requestID! ], withCompletionBlock: { (error, dbRef) in
+//                        if let error = error {
+//                            completionHandler?(false,error.localizedDescription)
+//                        }
+//                        else{
+//                            completionHandler?(true,requestID!)
+//                        }
+//                    })
+//
+//                })
+//
+//            }
+//        }
+
+    
+    
     }
     
+    
+    
+    func updateRidersLocation(requestID : String , latitude : Double , longitude : Double , isRequestAccepted : Bool) {
+        
+        var requestStatusChild : String
+        if isRequestAccepted {
+            requestStatusChild = ACCEPTED_REQUESTS
+        }
+        else{
+            requestStatusChild = PENDING_REQUESTS
+        }
+        
+        FirebaseDBURL.child(RIDE_REQUESTS).child(requestStatusChild).child(requestID).child(RIDER_LOCATION).updateChildValues([ LATITUDE : latitude , LONGITUDE : longitude ])
+        
+    }
+    
+    func cancelUberCall(requestID : String , isRequestAccepted : Bool , completionHandler : DBQueryHandler?) {
+        var requestStatusChild : String
+        if isRequestAccepted {
+            requestStatusChild = ACCEPTED_REQUESTS
+        }
+        else{
+            requestStatusChild = PENDING_REQUESTS
+        }
+        
+        FirebaseDBURL.child(RIDE_REQUESTS).child(requestStatusChild).child(requestID).removeValue { (error, dbref) in
+            if let error = error {
+                completionHandler?(false, error.localizedDescription)
+            }
+            else{
+                
+                if let user = Auth.auth().currentUser {
+                    self.FirebaseDBURL.child(BOOKED_PEOPLE).child(portalUserType.lowercased()).child(user.uid).removeValue(completionBlock: { (error, dbRef) in
+                        if let error = error {
+                            completionHandler?(false, error.localizedDescription)
+                        }
+                        else{
+                            completionHandler?(true,nil)
+                        }
+                    })
+                }
+                else{
+                    completionHandler?(false, "There is a problem with the user authentication. Please Logout to correct.")
+                }
+            }
+        }
+    }
     
     func observeCabRequestStatus(requestID : String , completionHandler : DBQueryHandler?) {
         

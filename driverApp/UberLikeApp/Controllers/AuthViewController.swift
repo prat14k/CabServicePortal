@@ -187,6 +187,9 @@ extension AuthViewController : UITextFieldDelegate {
         if textField == emailTextField {
             passwordTextField.becomeFirstResponder()
         }
+        else{
+            loginAction(loginButton)
+        }
         
         return true
     }

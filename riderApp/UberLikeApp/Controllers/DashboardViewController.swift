@@ -24,11 +24,13 @@ class DashboardViewController: UIViewController {
     private var driverID : String!
     private var cabRequestID : String!
     
+    private var requestIsBeingCancelled = false
+    
     private lazy var locationManager : CLLocationManager! = {
         var locationManager = CLLocationManager()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyKilometer
-        locationManager.distanceFilter = 500
+        locationManager.distanceFilter = 30
         locationManager.requestWhenInUseAuthorization()
         
         return locationManager
@@ -77,17 +79,14 @@ class DashboardViewController: UIViewController {
     private func userUnAvailabityInfo(_ info : [String : Any]?){
         if let info = info {
             cabRequestID = info[REQUEST_UID] as! String
-            makeUserBooked(infoDict: info)
+            makeUserBooked()
         }
         else{
             makeUserFree()
         }
     }
     
-    func makeUserBooked(infoDict : [String : Any]){
-        print("BOOKED : ")
-        print(infoDict)
-        
+    func makeUserBooked(){
         isRideBooked = true
         cabActionButton.backgroundColor = UIColor.rgb(red: 15, green: 79, blue: 239, alpha: 1.0)
         cabActionButton.setTitle("Cancel Uber Ride Request", for: .normal)
@@ -97,7 +96,7 @@ class DashboardViewController: UIViewController {
         cabRequestID = nil
         driverID = nil
         riderLocation = nil
-        
+        requestIsBeingCancelled = false
         cabActionButton.backgroundColor = UIColor.rgb(red: 15, green: 79, blue: 59, alpha: 1.0)
         cabActionButton.setTitle("Call Uber Cab", for: .normal)
     }
@@ -105,7 +104,9 @@ class DashboardViewController: UIViewController {
     private func addRideRequestStatusObserver(){
         DBAccessProvider.Instance.observeCabRequestStatus(requestID: cabRequestID) { (success, message) in
             if success {
-                AlertViewHelper.showAlertWithTitle("Your call for a cab has been accepted", message: "A Driver has accepted your request. You can see his position in the map.", presentingController: self)
+                if !self.requestIsBeingCancelled {
+                    AlertViewHelper.showAlertWithTitle("Your call for a cab has been accepted", message: "A Driver has accepted your request. You can see his position in the map.", presentingController: self)
+                }
             }
         }
     }
@@ -137,7 +138,21 @@ extension DashboardViewController {
     @IBAction func riderRideAction(_ sender: UIButton) {
         
         if isRideBooked {
-            
+            requestIsBeingCancelled = true
+            SVProgressHUD.show(withStatus: "Cancelling the Ride")
+            DBAccessProvider.Instance.cancelUberCall(requestID: cabRequestID, isRequestAccepted: (driverLocation != nil), completionHandler: { (success, message) in
+                if success {
+                    DropDownAlert.showMessage("The cab request has been cancelled successfully.", withTextColor: nil, backGroundColor: errorColor, position: .bottom)
+                    self.makeUserFree()
+                }
+                else{
+                    if let msg = message {
+                        AlertViewHelper.showAlertWithTitle("Problem with Cancelling Cab", message: msg, presentingController: self)
+                        self.requestIsBeingCancelled = false
+                    }
+                }
+                SVProgressHUD.dismiss()
+            })
         }
         else{
             if riderLocation != nil {
@@ -150,7 +165,7 @@ extension DashboardViewController {
                             self.isRideBooked = true
                             self.cabRequestID = message!
                             if self.cabRequestID != nil {
-                                self.makeUserBooked(infoDict: [String:Any]())
+                                self.makeUserBooked()
                                 self.addRideRequestStatusObserver()
                             }
                         }
@@ -188,6 +203,11 @@ extension DashboardViewController : MKMapViewDelegate , CLLocationManagerDelegat
                 annotation.coordinate = riderLocation
                 annotation.title = "\(portalUserType) Locations"
                 mapkit.addAnnotation(annotation)
+                
+                if isRideBooked {
+                    let isDriverBooked = (driverLocation != nil)
+                    DBAccessProvider.Instance.updateRidersLocation(requestID: cabRequestID, latitude: riderLocation.latitude, longitude: riderLocation.longitude, isRequestAccepted: isDriverBooked)
+                }
             }
         }
     }

@@ -17,12 +17,17 @@ class AlertViewHelper: NSObject {
     
     private var pendingAlerts = [UIAlertController]()
     
-    class func showAlertWithTitle(_ title : String , message : String , presentingController : UIViewController){
+    class func showAlertWithTitle(_ title : String , message : String , presentingController : UIViewController , startPendingRequestsAtCompletion : Bool = false){
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let okayAction = UIAlertAction(title: "Okay", style: .default, handler: nil)
         alertController.addAction(okayAction)
-        
-        presentingController.present(alertController, animated: true, completion: nil)
+
+        presentingController.present(alertController, animated: true) {
+            if startPendingRequestsAtCompletion {
+                AlertViewHelper.Instance.startPendingRequestsAlertsAgain(presentingController: presentingController)
+            }
+        }
+//        presentingController.present(alertController, animated: true, completion: nil)
     }
     
     class func showAlertWithTitle(_ title : String , message : String , positiveAlertAction : UIAlertAction , presentingController : UIViewController , shouldBePresentedNow presentAlertNow : Bool = true){

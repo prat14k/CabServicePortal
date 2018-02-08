@@ -76,11 +76,10 @@ extension DBAccessProvider {
                 if let requestInfo = pendingReq.value as? [String : Any] {
                     
                     let riderID = requestInfo[RIDER_UID] as! String
-                    let latitude = requestInfo[LATITUDE] as! Double
-                    let longitude = requestInfo[LONGITUDE] as! Double
                     
-                    newRequestHandler([ REQUEST_UID : requestID , RIDER_UID : riderID , LATITUDE : latitude , LONGITUDE : longitude ])
-                    
+                    if let coordinates = requestInfo[RIDER_LOCATION] as? [String : Double] {
+                        newRequestHandler([ REQUEST_UID : requestID , RIDER_UID : riderID , RIDER_LOCATION : coordinates ])
+                    }
                 }
                 
             }
@@ -88,7 +87,7 @@ extension DBAccessProvider {
         }
     }
     
-    func acceptCabRideRequest(infoDict : [String : Any] ,withCompletionHandler completionHandler : DBQueryHandler? = nil) -> Void {
+    func acceptCabRideRequest(infoDict : [String : Any] , driverLocation : [String : Any]  ,withCompletionHandler completionHandler : DBQueryHandler? = nil) -> Void {
         
         if let requestID = infoDict[REQUEST_UID] as? String {
             
@@ -100,7 +99,7 @@ extension DBAccessProvider {
                 return
             }
             
-            let acceptedReqData = [ DRIVER_UID : uid , RIDER_UID : infoDict[RIDER_UID]! , LATITUDE : infoDict[LATITUDE]! , LONGITUDE : infoDict[LONGITUDE]! ] as [String : Any]
+            let acceptedReqData = [ DRIVER_UID : uid , RIDER_UID : infoDict[RIDER_UID]! , RIDER_LOCATION : infoDict[RIDER_LOCATION]! , DRIVER_LOCATION : driverLocation ] as [String : Any]
             
             FirebaseDBURL.child(RIDE_REQUESTS).child(ACCEPTED_REQUESTS).child(requestID).updateChildValues(acceptedReqData, withCompletionBlock: { (error, dbRef) in
                 if let error = error {
@@ -127,6 +126,58 @@ extension DBAccessProvider {
             })
         
         }
+        
+    }
+    
+    func addObserverForRequestCancelling(requestID : String , completionHandler : DBQueryHandler?){
+        
+        FirebaseDBURL.child(RIDE_REQUESTS).child(ACCEPTED_REQUESTS).child(requestID).observeSingleEvent(of: .childRemoved) { (snapShot) in
+            if snapShot.exists() {
+                completionHandler?(true,"The rider has cancelled the cab request.")
+            }
+            else {
+                print("snapshot not existing")
+                print(snapShot)
+            }
+        }
+        
+    }
+    
+    func addObserverForRidersLocationUpdate(requestID : String , completionHandler : DBQueryHandler?){
+        
+    }
+    
+    func cancelRide(requestID : String , ridersInfo : [String : Any], completionHandler : DBQueryHandler?){
+        
+        self.FirebaseDBURL.child(BOOKED_PEOPLE).child(portalUserType.lowercased()).child(AuthProvider.Instance.getUID()).removeValue { (error, dbRef) in
+            
+            if let error = error {
+                completionHandler?(false, error.localizedDescription)
+            }
+            else{
+                self.FirebaseDBURL.child(RIDE_REQUESTS).child(ACCEPTED_REQUESTS).child(requestID).removeValue { (error, dbref) in
+                    if let error = error {
+                        completionHandler?(false,error.localizedDescription)
+                    }
+                    else{
+                        self.FirebaseDBURL.child(RIDE_REQUESTS).child(PENDING_REQUESTS).child(requestID).updateChildValues(ridersInfo, withCompletionBlock: { (error, dbRef) in
+                            if let error = error {
+                                completionHandler?(false, error.localizedDescription)
+                            }
+                            else{
+                                completionHandler?(true,"Cancelled Successfully")
+                            }
+                        })
+                    }
+                }
+            }
+            
+        }
+    }
+    
+    func updateUsersCurrentLocation(requestID : String , latitude : Double , longitude : Double){
+        
+        FirebaseDBURL.child(RIDE_REQUESTS).child(ACCEPTED_REQUESTS).child(requestID).child(DRIVER_LOCATION).updateChildValues([LATITUDE : latitude , LONGITUDE : longitude])
         
     }
     

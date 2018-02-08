@@ -174,11 +174,11 @@ extension AuthViewController : UITextFieldDelegate {
             return false
         }
         
-        let stricterFilter = true
+//        let stricterFilter = true
         let stricterFilterString = "^[A-Z0-9a-z\\._%+-]+@([A-Za-z0-9-]+\\.)+[A-Za-z]{2,4}$"
-        let laxString = "^.+@([A-Za-z0-9-]+\\.)+[A-Za-z]{2}[A-Za-z]*$"
-        let emailRegex = stricterFilter ? stricterFilterString : laxString
-        let emailTest = NSPredicate(format: "SELF MATCHES %@", emailRegex)
+//        let laxString = "^.+@([A-Za-z0-9-]+\\.)+[A-Za-z]{2}[A-Za-z]*$"
+//        let emailRegex = stricterFilter ? stricterFilterString : laxString
+        let emailTest = NSPredicate(format: "SELF MATCHES %@", stricterFilterString)
         
         return emailTest.evaluate(with:email)
     }
@@ -188,7 +188,9 @@ extension AuthViewController : UITextFieldDelegate {
         if textField == emailTextField {
             passwordTextField.becomeFirstResponder()
         }
-        
+        else{
+            loginAction(loginButton)
+        }
         return true
     }
     

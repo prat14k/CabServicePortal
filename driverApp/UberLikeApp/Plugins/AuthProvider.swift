@@ -18,12 +18,19 @@ class AuthProvider {
     static var Instance : AuthProvider {
         return AuthProvider._instance
     }
-    
+
 }
 
 
 //Public API's
 extension AuthProvider {
+    
+    func getUID() -> String {
+        if let user = Auth.auth().currentUser {
+            return user.uid
+        }
+        return ""
+    }
     
     func logoutUser(withCompletionHandler completionHandler: AuthCompletionHandler?){
         do {
