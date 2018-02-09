@@ -217,13 +217,13 @@
                                 </constraints>
                             </view>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" showsUserLocation="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gsV-rn-p8S">
-                                <rect key="frame" x="0.0" y="65" width="375" height="350"/>
+                                <rect key="frame" x="0.0" y="65" width="375" height="400"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="350" id="Ra8-id-bUq"/>
+                                    <constraint firstAttribute="height" constant="400" id="Ra8-id-bUq"/>
                                 </constraints>
                             </mapView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QVH-VC-AnZ">
-                                <rect key="frame" x="87" y="460" width="200" height="50"/>
+                                <rect key="frame" x="87" y="510" width="200" height="50"/>
                                 <color key="backgroundColor" red="0.059269692183031977" green="0.30953714010658911" blue="0.93779743020304573" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="HOj-5Y-8tj"/>

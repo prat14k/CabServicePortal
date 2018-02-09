@@ -44,6 +44,12 @@ extension DBAccessProvider {
         
     }
     
+    func changeRidersRequestStatus(riderID : String , requestStatus : Bool){
+        
+        FirebaseDBURL.child(BOOKED_PEOPLE).child("riders").child(riderID).updateChildValues([REQUEST_STATUS : requestStatus])
+        
+    }
+    
     func checkIfUserAvailable() {
         
         var uid : String
@@ -64,6 +70,20 @@ extension DBAccessProvider {
         }
         
     }
+    
+    
+    func getPreviouslySelectedRequestData(requestID : String , completionHandler : @escaping RideAlertHandler) {
+        
+        FirebaseDBURL.child(RIDE_REQUESTS).child(ACCEPTED_REQUESTS).child(requestID).observeSingleEvent(of: .value) { (snapShot) in
+            if snapShot.exists() {
+                if let requestData = snapShot.value as? [String : Any] {
+                    completionHandler(requestData)
+                }
+            }
+        }
+        
+    }
+    
     
     func checkIfAnyPendingCabRequests(newRequestHandler : @escaping RideAlertHandler){
         
@@ -143,7 +163,22 @@ extension DBAccessProvider {
         
     }
     
-    func addObserverForRidersLocationUpdate(requestID : String , completionHandler : DBQueryHandler?){
+    func addObserverForRidersLocationUpdate(requestID : String , completionHandler : @escaping RideAlertHandler){
+        
+        let ref = FirebaseDBURL.child(RIDE_REQUESTS).child(ACCEPTED_REQUESTS).child(requestID).child(RIDER_LOCATION)
+        
+        ref.observe(.childChanged) { (snapShot) in
+            
+            if snapShot.exists() {
+                if let val = snapShot.value as? Double {
+                    completionHandler([ snapShot.key : val])
+                }
+            }
+            
+        }
+        ref.observe(.childRemoved) { (snapShot) in
+            ref.removeAllObservers()
+        }
         
     }
     

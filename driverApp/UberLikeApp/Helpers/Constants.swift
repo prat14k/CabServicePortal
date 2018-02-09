@@ -38,6 +38,7 @@ let UNAVAILABILITY_ISSUE = "UnAvailabilityNotification"
 let BOOKED_PEOPLE = "bookedEntities"
 
 let REQUEST_UID = "requestUID"
+let REQUEST_STATUS = "requestStatus"
 
 let successColor = UIColor.rgb(red: 0, green: 200, blue: 70, alpha: 1.0)
 let errorColor = UIColor.rgb(red: 120, green: 30, blue: 30, alpha: 1.0)

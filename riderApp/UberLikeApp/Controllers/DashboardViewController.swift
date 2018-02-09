@@ -285,6 +285,9 @@ extension DashboardViewController {
             SVProgressHUD.show(withStatus: "Cancelling the Ride")
             DBAccessProvider.Instance.cancelUberCall(requestID: cabRequestID, isRequestAccepted: (driverLocation != nil), completionHandler: { (success, message) in
                 if success {
+                    if self.driverID != nil {
+                        DBAccessProvider.Instance.removeDriversAvailabilityStatus(driverID: self.driverID)
+                    }
                     DropDownAlert.showMessage("The cab request has been cancelled successfully.", withTextColor: nil, backGroundColor: errorColor, position: .bottom)
                     DBAccessProvider.Instance.removeRiderRequestInfoData(requestType: (self.driverLocation != nil ? ACCEPTED_REQUESTS : PENDING_REQUESTS), requestID: self.cabRequestID)
                     DBAccessProvider.Instance.removeRiderBookingData()

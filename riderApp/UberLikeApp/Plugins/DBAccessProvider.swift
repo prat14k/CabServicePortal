@@ -169,6 +169,10 @@ extension DBAccessProvider {
         FirebaseDBURL.child(BOOKED_PEOPLE).child(portalUserType.lowercased()).child(AuthProvider.Instance.UID()).removeValue()
     }
     
+    func removeDriversAvailabilityStatus(driverID : String){
+        FirebaseDBURL.child(BOOKED_PEOPLE).child(driverID).removeValue()
+    }
+    
     func removeRiderRequestInfoData(requestType : String , requestID : String){
         FirebaseDBURL.child(RIDE_REQUESTS).child(requestType).child(requestID).removeValue()
     }
