@@ -105,7 +105,8 @@ class DashboardViewController: UIViewController {
                     if let msg = message {
                         AlertViewHelper.showAlertWithTitle("Cab Ride has been Cancelled", message: msg, presentingController: self, startPendingRequestsAtCompletion: true)
                         self.makeUserFree()
-                        DBAccessProvider.Instance.removeOtherInnecessaryAcceptanceData(requestID: requestID)
+                        DBAccessProvider.Instance.removeUserAvailabilityData()
+                        DBAccessProvider.Instance.removeRequestStatusData(requestID: requestID, requestType: ACCEPTED_REQUESTS)
                     }
                 }
             }
@@ -117,7 +118,7 @@ class DashboardViewController: UIViewController {
     }
     
     private func addObserverForPendingReq(){
-        if driverLocation != nil {
+
             DBAccessProvider.Instance.checkIfAnyPendingCabRequests(newRequestHandler: { (infoDict) in
                 let positiveAction = UIAlertAction(title: "Accept", style: .default, handler: { (action) in
                     SVProgressHUD.show(withStatus: "Accepting the Cab Request")
@@ -129,6 +130,8 @@ class DashboardViewController: UIViewController {
                         if success {
                             self.makeUserBooked(infoDict: infoDict)
                             DropDownAlert.showMessage("Request Accepted Successfully. You can see the rider's location in the map.", withTextColor: nil, backGroundColor: successColor, position: .bottom)
+//                            let requestID = self.cabRequestID
+//                            DBAccessProvider.Instance.removeOtherInnecessaryAcceptanceData(requestID: self.cabRequestID, request)
                         }
                         else{
                             if let msg = message {
@@ -146,7 +149,7 @@ class DashboardViewController: UIViewController {
                 }
             
             })
-        }
+        
     }
     
 }
@@ -182,7 +185,10 @@ extension DashboardViewController {
             DBAccessProvider.Instance.cancelRide(requestID: cabRequestID, ridersInfo: ridersInfo, completionHandler: { (success, message) in
                 if success {
                     DropDownAlert.showMessage("The ride has been cancelled", withTextColor: nil, backGroundColor: errorColor, position: .bottom)
+                    let requestID = self.cabRequestID == nil ? "" : self.cabRequestID
                     self.makeUserFree()
+                    DBAccessProvider.Instance.removeRequestStatusData(requestID: requestID!, requestType: ACCEPTED_REQUESTS)
+                    DBAccessProvider.Instance.removeUserAvailabilityData()
                     AlertViewHelper.Instance.startPendingRequestsAlertsAgain(presentingController: self)
                 }
             })

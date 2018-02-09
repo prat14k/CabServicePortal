@@ -177,14 +177,21 @@ extension DBAccessProvider {
     
     func updateUsersCurrentLocation(requestID : String , latitude : Double , longitude : Double){
         
-        FirebaseDBURL.child(RIDE_REQUESTS).child(ACCEPTED_REQUESTS).child(requestID).child(DRIVER_LOCATION).updateChildValues([LATITUDE : latitude , LONGITUDE : longitude])
+//        FirebaseDBURL.child(RIDE_REQUESTS).child(ACCEPTED_REQUESTS).child(requestID).observeSingleEvent(of: .value) { (snapShot) in
+//            if snapShot.exists() {
+                self.FirebaseDBURL.child(RIDE_REQUESTS).child(ACCEPTED_REQUESTS).child(requestID).child(DRIVER_LOCATION).updateChildValues([LATITUDE : latitude , LONGITUDE : longitude])
+//            }
+//        }
         
     }
     
     
-    func removeOtherInnecessaryAcceptanceData(requestID : String){
-        FirebaseDBURL.child(RIDE_REQUESTS).child(ACCEPTED_REQUESTS).child(requestID).removeValue()
+    func removeUserAvailabilityData(){
         FirebaseDBURL.child(BOOKED_PEOPLE).child(portalUserType.lowercased()).child(AuthProvider.Instance.getUID()).removeValue()
+    }
+    
+    func removeRequestStatusData(requestID : String, requestType : String){
+        FirebaseDBURL.child(RIDE_REQUESTS).child(requestType).child(requestID).removeValue()
     }
     
 }

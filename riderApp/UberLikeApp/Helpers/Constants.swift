@@ -37,6 +37,8 @@ let BOOKED_PEOPLE = "bookedEntities"
 
 let REQUEST_UID = "requestUID"
 
+let REQUEST_STATUS = "isAccepted"
+
 let portalUserType = "Riders"
 
 

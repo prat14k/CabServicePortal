@@ -25,6 +25,13 @@ class AuthProvider {
 //Public API's
 extension AuthProvider {
     
+    func UID() -> String {
+        if let user = Auth.auth().currentUser {
+            return user.uid
+        }
+        return ""
+    }
+    
     func logoutUser(withCompletionHandler completionHandler: AuthCompletionHandler?){
         do {
             try Auth.auth().signOut()

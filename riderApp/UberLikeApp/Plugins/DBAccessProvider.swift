@@ -36,19 +36,23 @@ extension DBAccessProvider {
     }
     
     
+    func updateRequestStatusInAvailabilityStatusInfo(status : Bool){
+        FirebaseDBURL.child(BOOKED_PEOPLE).child(portalUserType.lowercased()).child(AuthProvider.Instance.UID()).updateChildValues([REQUEST_STATUS : status])
+    }
+    
+    
     func checkIfUserAvailable() {
         
-        var uid : String
-        if let user = Auth.auth().currentUser {
-            uid = user.uid
-        }
-        else{
-            return
-        }
-        
-        FirebaseDBURL.child(BOOKED_PEOPLE).child(portalUserType.lowercased()).child(uid).observeSingleEvent(of: .value) { (snapShot) in
+        FirebaseDBURL.child(BOOKED_PEOPLE).child(portalUserType.lowercased()).child(AuthProvider.Instance.UID()).observeSingleEvent(of: .value) { (snapShot) in
             if snapShot.exists() {
-                NotificationCenter.default.post(name: NSNotification.Name(rawValue: UNAVAILABILITY_ISSUE), object: nil, userInfo: [REQUEST_UID  : snapShot.value as! String])
+                
+                if let info = snapShot.value as? [String : Any]{
+                    if let requestID = info[REQUEST_UID] as? String , let status = info[REQUEST_STATUS] as? Bool {
+                        NotificationCenter.default.post(name: NSNotification.Name(rawValue: UNAVAILABILITY_ISSUE), object: nil, userInfo: [REQUEST_UID  : requestID , REQUEST_STATUS : status])
+                        return
+                    }
+                }
+                NotificationCenter.default.post(name: NSNotification.Name(rawValue: UNAVAILABILITY_ISSUE), object: nil, userInfo: nil)
             }
         }
         
@@ -75,7 +79,7 @@ extension DBAccessProvider {
                 completionHandler?(false,error.localizedDescription)
             }
             else{
-                self.FirebaseDBURL.child(BOOKED_PEOPLE).child(portalUserType.lowercased()).updateChildValues([ uid : requestID! ], withCompletionBlock: { (error, dbRef) in
+                self.FirebaseDBURL.child(BOOKED_PEOPLE).child(portalUserType.lowercased()).updateChildValues([ uid : [ REQUEST_UID : requestID! , REQUEST_STATUS : false ] ], withCompletionBlock: { (error, dbRef) in
                     if let error = error {
                         completionHandler?(false,error.localizedDescription)
                     }
@@ -151,8 +155,8 @@ extension DBAccessProvider {
         }
     }
     
-    func getAcceptedQueryData(requestID : String , completionHandler : @escaping DBQueryInfoHandler) {
-        FirebaseDBURL.child(RIDE_REQUESTS).child(ACCEPTED_REQUESTS).child(requestID).observeSingleEvent(of: .value) { (snapShot) in
+    func getRequestedRideQueryData(requestID : String , requestStatusType : String , completionHandler : @escaping DBQueryInfoHandler) {
+        FirebaseDBURL.child(RIDE_REQUESTS).child(requestStatusType).child(requestID).observeSingleEvent(of: .value) { (snapShot) in
             if snapShot.exists() {
                 if let rideInfo = snapShot.value as? [String : Any] {
                     completionHandler(true,rideInfo,nil)
@@ -161,15 +165,22 @@ extension DBAccessProvider {
         }
     }
     
+    func removeRiderBookingData(){
+        FirebaseDBURL.child(BOOKED_PEOPLE).child(portalUserType.lowercased()).child(AuthProvider.Instance.UID()).removeValue()
+    }
+    
+    func removeRiderRequestInfoData(requestType : String , requestID : String){
+        FirebaseDBURL.child(RIDE_REQUESTS).child(requestType).child(requestID).removeValue()
+    }
     
     func addDriverLocationObserver(requestID : String , updateHandler : @escaping DBQueryInfoHandler){
         
-        var ref = FirebaseDBURL.child(RIDE_REQUESTS).child(ACCEPTED_REQUESTS).child(requestID).child(DRIVER_LOCATION)
+        let ref = FirebaseDBURL.child(RIDE_REQUESTS).child(ACCEPTED_REQUESTS).child(requestID).child(DRIVER_LOCATION)
         
         ref.observe(.childChanged) { (snapShot) in
             if snapShot.exists() {
-                if let info = snapShot.value as? [String : Double] {
-                    updateHandler(true, info, nil)
+                if let info = snapShot.value as? Double {
+                    updateHandler(true, [ snapShot.key : info], nil)
                 }
             }
         }

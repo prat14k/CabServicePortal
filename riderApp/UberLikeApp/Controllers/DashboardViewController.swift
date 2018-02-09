@@ -53,6 +53,9 @@ class DashboardViewController: UIViewController {
     }
     
     private func checkLocationAuthorizationStatus(){
+        
+        locationManager.startUpdatingLocation()
+        
 //        let code = CLLocationManager.authorizationStatus()
 //        if code == .notDetermined {
 //            if Bundle.main.object(forInfoDictionaryKey: "NSLocationAlwaysUsageDescription") != nil {
@@ -63,7 +66,7 @@ class DashboardViewController: UIViewController {
 //            }
 //        }
 //        else{
-            locationManager.startUpdatingLocation()
+//            locationManager.startUpdatingLocation()
 //        }
     }
     
@@ -79,10 +82,29 @@ class DashboardViewController: UIViewController {
         userUnAvailabityInfo(notification.userInfo as? [String : Any])
     }
     
+    private func getRequestInfo(requestStatus : Bool){
+        let requestStatusType = requestStatus ? ACCEPTED_REQUESTS : PENDING_REQUESTS
+        
+        DBAccessProvider.Instance.getRequestedRideQueryData(requestID: cabRequestID, requestStatusType: requestStatusType) { (success, infoDict, message) in
+            
+            if let requestInfo = infoDict {
+                if let loc = requestInfo[RIDER_LOCATION] as? [String : Double] {
+                    if self.riderLocation == nil {
+                        if let latitude = loc[LATITUDE] , let longitude = loc[LONGITUDE] {
+                            self.riderLocation = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+                            self.setMapRegionAndAnnotation()
+                        }
+                    }
+                }
+                self.makeUserBooked(info: requestInfo)
+            }
+        }
+    }
+    
     private func userUnAvailabityInfo(_ info : [String : Any]?){
         if let info = info {
             cabRequestID = info[REQUEST_UID] as! String
-//            makeUserBooked()
+            getRequestInfo(requestStatus: info[REQUEST_STATUS] as! Bool)
         }
         else{
             makeUserFree()
@@ -90,6 +112,10 @@ class DashboardViewController: UIViewController {
     }
     
     private func addDriverAnnotation(){
+        
+        if driverAnnotation != nil {
+            mapkit.removeAnnotation(driverAnnotation)
+        }
         driverAnnotation = MKPointAnnotation()
         driverAnnotation.coordinate = driverLocation
         driverAnnotation.title = "Driver's Location"
@@ -101,8 +127,19 @@ class DashboardViewController: UIViewController {
         
         DBAccessProvider.Instance.addDriverLocationObserver(requestID: cabRequestID) { (success, infoDict, message) in
             if success {
+                if self.driverLocation == nil {
+                    return
+                }
                 if let info = infoDict as? [String : Double] {
-                    self.driverLocation = CLLocationCoordinate2D(latitude: info[LATITUDE]!, longitude: info[LONGITUDE]!)
+                    var latitude = self.driverLocation.latitude
+                    var longitude = self.driverLocation.longitude
+                    if let newLatitude = info[LATITUDE] {
+                        latitude = newLatitude
+                    }
+                    if let newLongitude = info[LONGITUDE] {
+                        longitude = newLongitude
+                    }
+                    self.driverLocation = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
                     self.addDriverAnnotation()
                 }
             }
@@ -119,6 +156,10 @@ class DashboardViewController: UIViewController {
                 addDriverAnnotation()
                 addDriverLocationObserver()
             }
+            addRideRequestAcceptedStatusObserver()
+        }
+        else{
+            addRideRequestStatusObserver()
         }
         
         cabActionButton.backgroundColor = UIColor.rgb(red: 15, green: 79, blue: 239, alpha: 1.0)
@@ -146,6 +187,8 @@ class DashboardViewController: UIViewController {
                 if !self.requestIsBeingCancelled {
                     self.fetchAcceptedRequestData()
                     AlertViewHelper.showAlertWithTitle("Your call for a cab has been accepted", message: "A Driver has accepted your request. You can see his position in the map.", presentingController: self)
+                    DBAccessProvider.Instance.removeRiderRequestInfoData(requestType: PENDING_REQUESTS, requestID: self.cabRequestID)
+                    DBAccessProvider.Instance.updateRequestStatusInAvailabilityStatusInfo(status: true)
                 }
             }
         }
@@ -169,19 +212,45 @@ class DashboardViewController: UIViewController {
                 if !self.requestIsBeingCancelled {
                     self.removeDriverDetails()
                     AlertViewHelper.showAlertWithTitle("Your driver have cancelled the ride", message: "The driver have cancelled the acceptance for cab ride offer. We will share your request to other drivers now.", presentingController: self)
+                    DBAccessProvider.Instance.removeRiderRequestInfoData(requestType: ACCEPTED_REQUESTS, requestID: self.cabRequestID)
+                    DBAccessProvider.Instance.updateRequestStatusInAvailabilityStatusInfo(status: false)
                 }
             }
         }
     }
     
     private func fetchAcceptedRequestData(){
-        DBAccessProvider.Instance.getAcceptedQueryData(requestID: cabRequestID) { (success, infoDict, message) in
+        DBAccessProvider.Instance.getRequestedRideQueryData(requestID: cabRequestID, requestStatusType: ACCEPTED_REQUESTS, completionHandler: { (success, infoDict, message) in
             if success {
                 if let infoDict = infoDict {
                     self.makeUserBooked(info: infoDict)
                     self.addRideRequestAcceptedStatusObserver()
                 }
             }
+        })
+    }
+    
+    private func setMapRegionAndAnnotation(){
+        if riderLocation == nil {
+            return
+        }
+        
+        let region = MKCoordinateRegion(center: riderLocation, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
+        
+        mapkit.setRegion(region, animated: true)
+        
+        if riderAnnotation != nil {
+            mapkit.removeAnnotation(riderAnnotation)
+        }
+        
+        riderAnnotation = MKPointAnnotation()
+        riderAnnotation.coordinate = riderLocation
+        riderAnnotation.title = "\(portalUserType) Locations"
+        mapkit.addAnnotation(riderAnnotation)
+        
+        if isRideBooked {
+            let isDriverBooked = (driverLocation != nil)
+            DBAccessProvider.Instance.updateRidersLocation(requestID: cabRequestID, latitude: riderLocation.latitude, longitude: riderLocation.longitude, isRequestAccepted: isDriverBooked)
         }
     }
     
@@ -217,6 +286,8 @@ extension DashboardViewController {
             DBAccessProvider.Instance.cancelUberCall(requestID: cabRequestID, isRequestAccepted: (driverLocation != nil), completionHandler: { (success, message) in
                 if success {
                     DropDownAlert.showMessage("The cab request has been cancelled successfully.", withTextColor: nil, backGroundColor: errorColor, position: .bottom)
+                    DBAccessProvider.Instance.removeRiderRequestInfoData(requestType: (self.driverLocation != nil ? ACCEPTED_REQUESTS : PENDING_REQUESTS), requestID: self.cabRequestID)
+                    DBAccessProvider.Instance.removeRiderBookingData()
                     self.makeUserFree()
                 }
                 else{
@@ -267,23 +338,7 @@ extension DashboardViewController : MKMapViewDelegate , CLLocationManagerDelegat
                 
                 riderLocation = CLLocationCoordinate2D(latitude: curLoc.coordinate.latitude, longitude: curLoc.coordinate.longitude)
                 
-                let region = MKCoordinateRegion(center: riderLocation, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
-                
-                mapkit.setRegion(region, animated: true)
-                
-                if riderAnnotation != nil {
-                    mapkit.removeAnnotation(riderAnnotation)
-                }
-                
-                riderAnnotation = MKPointAnnotation()
-                riderAnnotation.coordinate = riderLocation
-                riderAnnotation.title = "\(portalUserType) Locations"
-                mapkit.addAnnotation(riderAnnotation)
-                
-                if isRideBooked {
-                    let isDriverBooked = (driverLocation != nil)
-                    DBAccessProvider.Instance.updateRidersLocation(requestID: cabRequestID, latitude: riderLocation.latitude, longitude: riderLocation.longitude, isRequestAccepted: isDriverBooked)
-                }
+                setMapRegionAndAnnotation()
             }
         }
     }
