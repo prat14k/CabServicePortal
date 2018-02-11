@@ -11,6 +11,14 @@ import SVProgressHUD
 
 class AuthViewController: UIViewController {
 
+    let gradientLayer : CAGradientLayer = {
+        
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.colors = [UIColor(red: 0.919, green: 1, blue: 1, alpha: 1).cgColor , UIColor(red: 0.688, green: 1, blue: 1, alpha: 1).cgColor , UIColor(red: 0.58, green: 1, blue: 1, alpha: 1).cgColor , UIColor(red: 0.688, green: 1, blue: 1, alpha: 1).cgColor , UIColor(red: 0.809, green: 1, blue: 1, alpha: 1).cgColor ]
+        
+        return gradientLayer
+    }()
+    
     
     @IBOutlet weak var navBarView: UIView!
     @IBOutlet weak var scrollView: UIScrollView!
@@ -47,12 +55,13 @@ class AuthViewController: UIViewController {
         SVProgressHUD.dismiss()
     }
     
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        gradientLayer.frame.size = size
+    }
+    
     func addGradientLayer(){
-        let gradientLayer = CAGradientLayer()
-        gradientLayer.colors = [UIColor.rgb(red: 36, green: 198, blue: 217, alpha: 1.0).cgColor , UIColor.rgb(red: 8, green: 8, blue: 99, alpha: 1.0).cgColor]
-        
         gradientLayer.frame = view.frame
-        
         view.layer.insertSublayer(gradientLayer, at: 0)
     }
     
